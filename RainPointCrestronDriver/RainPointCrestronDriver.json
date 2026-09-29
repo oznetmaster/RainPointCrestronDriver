@@ -1,0 +1,86 @@
+{
+  "SchemaVersion": "2.0",
+  "GeneralInformation": {
+    "MinSdkVersion": "29.0000.0000",
+    "Guid": "7bf47283-5dea-4542-8ec2-4ddc0a0d3014",
+    "DeviceType": "Platform",
+    "Manufacturer": "RainPoint",
+    "BaseModel": "RainPoint Irrigation",
+    "OtherSupportedModels": [],
+    "SupportedSeries": [
+      "HWG023WBRF",
+      "HWG023WBRF-V2",
+      "HTV345FRF"
+    ],
+    "DependencyGroup": "",
+    "Developer": {
+      "Company": "Neil Colvin",
+      "Contact": "Neil Colvin",
+      "Email": "support@marvelous.com",
+      "Website": "",
+      "PhoneNumber": ""
+    },
+    "DriverVersion": "1.0.000.0017",
+    "VersionDate": "2026-09-29 12:00:00.000"
+  },
+  "ConfigurationSteps": {
+    "Items": [
+      {
+        "Id": "Email",
+        "Title": "RainPoint account email",
+        "Description": "Use a dedicated RainPoint Home / Smart+ account invited to the home.",
+        "Required": true,
+        "Persistent": true,
+        "ValueType": "String"
+      },
+      {
+        "Id": "Password",
+        "Title": "Password",
+        "Description": "Account password. Stored by Crestron Home as a masked configuration field.",
+        "Required": true,
+        "Persistent": true,
+        "ValueType": "String",
+        "Masked": true
+      },
+      {
+        "Id": "AreaCode",
+        "Title": "Country calling code",
+        "Description": "Country calling code used by the account, for example 44 for the UK.",
+        "Required": true,
+        "Persistent": true,
+        "ValueType": "String",
+        "DefaultValue": "44"
+      },
+      {
+        "Id": "HomeId",
+        "Title": "Home ID",
+        "Description": "Optional numeric cloud home ID. Leave blank only if this account has exactly one home.",
+        "Required": false,
+        "Persistent": true,
+        "ValueType": "String"
+      },
+      {
+        "Id": "HubId",
+        "Title": "Hub ID",
+        "Description": "Optional numeric cloud hub ID. Leave blank only if the selected home has exactly one supported hub.",
+        "Required": false,
+        "Persistent": true,
+        "ValueType": "String"
+      }
+    ],
+    "Steps": [
+      {
+        "StepId": "CloudAccount",
+        "Items": [
+          "Email",
+          "Password",
+          "AreaCode",
+          "HomeId",
+          "HubId"
+        ],
+        "NextStep": null
+      }
+    ],
+    "FirstStep": "CloudAccount"
+  }
+}

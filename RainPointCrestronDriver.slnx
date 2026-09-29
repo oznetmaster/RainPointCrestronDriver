@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="RainPointCrestronDriver/RainPointCrestronDriver.csproj" />
+  <Project Path="RainPointCrestronDriver.Core/RainPointCrestronDriver.Core.csproj" />
+  <Project Path="RainPointCrestronDriver.Tests/RainPointCrestronDriver.Tests.csproj" />
+  <Project Path="RainPointCrestronDriver.Lifecycle.Tests/RainPointCrestronDriver.Lifecycle.Tests.csproj" />
+  <Project Path="RainPointCrestronDriver.Automation.Tests/RainPointCrestronDriver.Automation.Tests.csproj" />
+</Solution>

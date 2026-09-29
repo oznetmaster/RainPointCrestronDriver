@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>14.0</LangVersion><Nullable>disable</Nullable>
+    <Authors>Neil Colvin</Authors><Copyright>Copyright (c) 2026 Neil Colvin</Copyright>
+    <Version>1.0.0</Version><IsPackable>false</IsPackable>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+</Project>

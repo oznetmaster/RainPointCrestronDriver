@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><IsTestProject>true</IsTestProject></PropertyGroup>
+  <ItemGroup>
+    <None Update="ExtensionsSchemaDefinition.xsd" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="NUnit" Version="5.0.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" PrivateAssets="all" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.15.0" PrivateAssets="all" />
+    <PackageReference Include="Crestron.DeviceDrivers.DevKit" Version="29.0.10" />
+    <PackageReference Include="Crestron.DeviceDrivers.ManifestUtil" Version="29.0.10" GeneratePathProperty="true" PrivateAssets="all" IncludeAssets="none" />
+    <ProjectReference Include="../RainPointCrestronDriver.Core/RainPointCrestronDriver.Core.csproj" />
+    <Reference Include="Newtonsoft.Json.Compact"><HintPath>$(PkgCrestron_DeviceDrivers_ManifestUtil)/tools/net8.0/any/Newtonsoft.Json.Compact.dll</HintPath><Private>true</Private></Reference>
+    <Compile Include="../RainPointCrestronDriver/*.cs" Exclude="../RainPointCrestronDriver/EntryPoint.cs" Link="Driver/%(Filename)%(Extension)" />
+    <None Include="../RainPointCrestronDriver/IncludeInPkg/**/*" Link="DriverTestData/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../RainPointCrestronDriver/RainPointCrestronDriver.json" Link="DriverTestData/DriverDefinition.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Use the complete ManifestUtil NuGet tool, including its support files. -->
+    <ManifestUtilExe>C:/your-tools/ManifestUtil.exe</ManifestUtilExe>
+    <IlRepackToolDirectory>C:/your-tools/ilrepack</IlRepackToolDirectory>
+  </PropertyGroup>
+</Project>

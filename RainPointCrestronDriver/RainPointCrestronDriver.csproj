@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework><AssemblyName>RainPointCrestronDriver</AssemblyName>
+    <RootNamespace>RainPoint.CrestronDriver</RootNamespace>
+    <IsPackable>true</IsPackable><IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking><PackageType>CrestronHomeDriver</PackageType>
+    <PackageId>CrestronHomeDriver.RainPoint.Irrigation</PackageId>
+    <Description>Crestron Home irrigation extension for RainPoint Home three-zone timers, with timed watering, live feedback and Home programming.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile><PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/oznetmaster/RainPointCrestronDriver</RepositoryUrl><RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/oznetmaster/RainPointCrestronDriver</PackageProjectUrl>
+    <PackageTags>crestron;crestron-home;rainpoint;irrigation;driver</PackageTags>
+    <BuildForTests Condition="'$(BuildForTests)' == ''">true</BuildForTests>
+    <MergeDependenciesContinueOnError>false</MergeDependenciesContinueOnError>
+    <PackageDriverContinueOnError>false</PackageDriverContinueOnError>
+    <PackageDriverIgnoreExitCode>false</PackageDriverIgnoreExitCode>
+    <IlRepackToolDirectory Condition="'$(IlRepackToolDirectory)' == ''">$(UserProfile)\.dotnet\tools\.store\dotnet-ilrepack\2.0.45\dotnet-ilrepack\2.0.45\tools\net8.0\any</IlRepackToolDirectory>
+    <LocalNet472ReferenceAssemblies Condition="'$(LocalNet472ReferenceAssemblies)' == ''">C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2</LocalNet472ReferenceAssemblies>
+    <LocalNetFxRuntimeDir Condition="'$(LocalNetFxRuntimeDir)' == ''">C:\Windows\Microsoft.NET\Framework64\v4.0.30319</LocalNetFxRuntimeDir>
+    <ManifestUtilExe Condition="'$(ManifestUtilExe)' == ''">$(UserProfile)\.nuget\packages\crestron.devicedrivers.manifestutil\29.0.10\tools\net8.0\any\ManifestUtil.exe</ManifestUtilExe>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../RainPointCrestronDriver.Core/RainPointCrestronDriver.Core.csproj" />
+    <PackageReference Include="Crestron.DeviceDrivers.DevKit" Version="29.0.10" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <EmbeddedResource Include="RainPointCrestronDriver.json" />
+    <None Include="../README.md;../LICENSE;../CHANGELOG.md;../RELEASE-NOTES.md;../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
+    <None Include="RainPointCrestronDriver.json" Pack="true" PackagePath="/" />
+    <None Include="$(PackageDriverPkgPath)" Pack="true" PackagePath="/" Condition="'$(PackageDriverPkgPath)' != ''" />
+  </ItemGroup>
+	<Target Name="MergeDependencies" AfterTargets="Build" Condition="'$(BuildForTests)' != 'true'">
+        <PropertyGroup>
+            <IlRepackToolDirectory Condition="'$(IlRepackToolDirectory)' == ''">$(UserProfile)\.dotnet\tools\.store\dotnet-ilrepack\2.0.45\dotnet-ilrepack\2.0.45\tools\net8.0\any</IlRepackToolDirectory>
+            <MergedDriverPath>$(TargetDir)merged\$(AssemblyName).dll</MergedDriverPath>
+        </PropertyGroup>
+        <ItemGroup>
+            <MergeInputs Include="$(TargetPath)" />
+            <!-- Merge the complete resolved runtime closure; Crestron SDK assemblies are provided by the processor. -->
+            <MergeInputs Include="@(ReferenceCopyLocalPaths)" Condition="'%(Extension)' == '.dll' And !$([System.String]::Copy('%(ReferenceCopyLocalPaths.NuGetPackageId)').ToLowerInvariant().StartsWith('crestron.'))" />
+        </ItemGroup>
+        <WriteLinesToFile File="$(TargetDir)merge_inputs.txt" Lines="@(MergeInputs->'%(FullPath)')" Overwrite="true" />
+        <Exec Command="pwsh -NoProfile -NonInteractive -File &quot;$(MSBuildProjectDirectory)\ILRepackMerge.ps1&quot; -TargetPath &quot;$(TargetPath)&quot; -OutputPath &quot;$(MergedDriverPath)&quot; -InputListFile &quot;$(TargetDir)merge_inputs.txt&quot; -LibDir &quot;$(TargetDir.TrimEnd('\'))&quot; -SdkLibDir &quot;$(LocalCrestronSdkLibDir)&quot; -FxRefDir &quot;$(LocalNet472ReferenceAssemblies)&quot; -FxRuntimeDir &quot;$(LocalNetFxRuntimeDir)&quot; -ToolDirectory &quot;$(IlRepackToolDirectory)&quot;" ContinueOnError="$(MergeDependenciesContinueOnError)" />
+        <Exec Command="pwsh -NoProfile -NonInteractive -File &quot;$(MSBuildProjectDirectory)\PatchMergedAssembly.ps1&quot; -AssemblyPath &quot;$(MergedDriverPath)&quot; -OutputPath &quot;$(TargetDir)patched\$(AssemblyName).dll&quot; -CecilPath &quot;$(IlRepackToolDirectory)\Mono.Cecil.dll&quot; -InputListFile &quot;$(TargetDir)merge_inputs.txt&quot; -ManifestPath &quot;$(MSBuildProjectDirectory)\RainPointCrestronDriver.json&quot;" ContinueOnError="false" />
+	</Target>
+
+	<Target Name="PackageDriver" AfterTargets="MergeDependencies" Condition="'$(BuildForTests)' != 'true'">
+		<RemoveDir Directories="$(TargetDir)patched\IncludeInPkg" />
+		<ItemGroup>
+			<IncludeInPkgFiles Include="$(MSBuildProjectDirectory)\IncludeInPkg\**\*" Exclude="$(MSBuildProjectDirectory)\IncludeInPkg\**\*.xsd" />
+		</ItemGroup>
+		<Copy SourceFiles="@(IncludeInPkgFiles)" DestinationFiles="@(IncludeInPkgFiles->'$(TargetDir)patched\IncludeInPkg\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Exec Command="&quot;$(ManifestUtilExe)&quot; --file &quot;$(TargetDir)patched\$(AssemblyName).dll&quot; --lib &quot;$(TargetDir.TrimEnd('\'))&quot; --output &quot;$(TargetDir.TrimEnd('\'))&quot;" ContinueOnError="$(PackageDriverContinueOnError)" IgnoreExitCode="$(PackageDriverIgnoreExitCode)" />
+	</Target>
+
+  <Target Name="RequireDriverPackageForPacking" BeforeTargets="GenerateNuspec">
+    <Error Condition="'$(PackageDriverPkgPath)' == '' Or !Exists('$(PackageDriverPkgPath)')" Text="Run tools/New-ReleaseAssets.ps1 to pack the validated driver package." />
+  </Target>
+  <Import Project="RainPointCrestronDriver.Local.targets" Condition="Exists('RainPointCrestronDriver.Local.targets')" />
+</Project>

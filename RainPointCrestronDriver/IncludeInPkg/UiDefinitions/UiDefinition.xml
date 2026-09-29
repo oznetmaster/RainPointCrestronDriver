@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 Neil Colvin. MIT with Commons Clause; see LICENSE. -->
+<uidefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://prd-use-rad-assets.azurewebsites.net/ExtensionsSchemaDefinition.xsd">
+  <version ver="3.0" />
+  <tile icon="{tileIcon}" status="{tileStatus}" navigation="show:MainPage" showinhomepage="#false" showinroompage="#true" />
+  <layouts>
+    <layout id="MainPage" title="{hubLabel}" subtitle="^TimerModel" isdefaultlayout="#true">
+      <controls>
+        <textdisplay id="Overview" title="^Status" line1label="{tileStatus}" line2label="{connection}" />
+        <statusandnavigation id="Zone1Row" label="{zone1Name}" status="{zone1Status}" navigation="show:Zone1Page" />
+        <statusandnavigation id="Zone2Row" label="{zone2Name}" status="{zone2Status}" navigation="show:Zone2Page" />
+        <statusandnavigation id="Zone3Row" label="{zone3Name}" status="{zone3Status}" navigation="show:Zone3Page" />
+        <button id="StopAll" label="^StopAll" action="command:stopAll" enabled="{canStop}" />
+        <button id="Plans" label="^Plans" navigation="show:PlansPage" action="command:refreshPlans" />
+        <button id="Diagnostics" label="^Diagnostics" navigation="show:DiagnosticsPage" />
+      </controls>
+    </layout>
+    <layout id="Zone1Page" title="{zone1Name}" subtitle="^TimerModel">
+      <controls>
+        <textdisplay id="Zone1Feedback" title="^Reported" line1label="{zone1Status}" line2label="{zone1Details}" />
+        <textdisplay id="Zone1LastUsage" title="^LastRecordedUsage" line1label="{zone1Usage}" line2label="{zone1UsageWhen}" line3label="{zone1HistoryStatus}" />
+        <raiselowerwithtext id="Zone1Duration" label="^Duration" value="{zone1Minutes}" valueformat="{minutesFormat}" enabled="{zone1CanStart}" />
+        <button id="Zone1Action" label="{zone1ActionLabel}" action="command:operateZone1" enabled="{zone1CanControl}" />
+        <textdisplay id="Zone1Command" title="^Command" line1label="{zone1Command}" line2label="{zone1Alarms}" />
+      </controls>
+    </layout>
+    <layout id="Zone2Page" title="{zone2Name}" subtitle="^TimerModel">
+      <controls>
+        <textdisplay id="Zone2Feedback" title="^Reported" line1label="{zone2Status}" line2label="{zone2Details}" />
+        <textdisplay id="Zone2LastUsage" title="^LastRecordedUsage" line1label="{zone2Usage}" line2label="{zone2UsageWhen}" line3label="{zone2HistoryStatus}" />
+        <raiselowerwithtext id="Zone2Duration" label="^Duration" value="{zone2Minutes}" valueformat="{minutesFormat}" enabled="{zone2CanStart}" />
+        <button id="Zone2Action" label="{zone2ActionLabel}" action="command:operateZone2" enabled="{zone2CanControl}" />
+        <textdisplay id="Zone2Command" title="^Command" line1label="{zone2Command}" line2label="{zone2Alarms}" />
+      </controls>
+    </layout>
+    <layout id="Zone3Page" title="{zone3Name}" subtitle="^TimerModel">
+      <controls>
+        <textdisplay id="Zone3Feedback" title="^Reported" line1label="{zone3Status}" line2label="{zone3Details}" />
+        <textdisplay id="Zone3LastUsage" title="^LastRecordedUsage" line1label="{zone3Usage}" line2label="{zone3UsageWhen}" line3label="{zone3HistoryStatus}" />
+        <raiselowerwithtext id="Zone3Duration" label="^Duration" value="{zone3Minutes}" valueformat="{minutesFormat}" enabled="{zone3CanStart}" />
+        <button id="Zone3Action" label="{zone3ActionLabel}" action="command:operateZone3" enabled="{zone3CanControl}" />
+        <textdisplay id="Zone3Command" title="^Command" line1label="{zone3Command}" line2label="{zone3Alarms}" />
+      </controls>
+    </layout>
+    <layout id="PlansPage" title="^Plans" subtitle="^TimerModel">
+      <controls>
+        <textdisplay id="Zone1Plans" title="{zone1Name}" line1label="{zone1Plans}" />
+        <textdisplay id="Zone2Plans" title="{zone2Name}" line1label="{zone2Plans}" />
+        <textdisplay id="Zone3Plans" title="{zone3Name}" line1label="{zone3Plans}" />
+        <textdisplay id="PlanHint" title="^PlanHint" line1label="^PlanHintText" />
+      </controls>
+    </layout>
+    <layout id="DiagnosticsPage" title="^Diagnostics" subtitle="^TimerModel">
+      <controls>
+        <textdisplay id="ConnectionDetails" title="^Connection" line1label="{connection}" line2label="{reportTime}" />
+        <textdisplay id="TimerDetails" title="^Timer" line1label="{battery}" line2label="{signal}" />
+      </controls>
+    </layout>
+  </layouts>
+  <alerts />
+</uidefinition>

@@ -1,0 +1,42 @@
+# Copyright (c) 2026 Neil Colvin. MIT with Commons Clause; see LICENSE.
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.401
+      - name: Install merge tool
+        run: dotnet tool install --global dotnet-ilrepack --version 2.0.45
+      - name: Run offline tests
+        run: ./tools/Test-Offline.ps1
+      - name: Build and inspect release assets
+        run: ./tools/New-ReleaseAssets.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: artifacts/tests/**/*.trx
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate
+          path: artifacts/release/*
+          if-no-files-found: error
