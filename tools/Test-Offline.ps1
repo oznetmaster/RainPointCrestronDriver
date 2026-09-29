@@ -4,6 +4,8 @@ param()
 $ErrorActionPreference='Stop'
 Push-Location (Split-Path $PSScriptRoot -Parent)
 try{
+    dotnet run --project tools/Documentation/Documentation.csproj -c Release -- --self-test
+    if($LASTEXITCODE -ne 0){throw 'Documentation policy tests failed.'}
     & ./tools/Test-ReleaseMetadata.ps1
     & ./.github/scripts/Test-RequiredReleaseChecks.ps1
     dotnet test RainPointCrestronDriver.Tests -c Release --logger 'trx;LogFilePrefix=portable' --results-directory artifacts/tests

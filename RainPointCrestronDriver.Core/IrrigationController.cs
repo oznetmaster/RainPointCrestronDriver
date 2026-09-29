@@ -14,25 +14,67 @@ public sealed class IrrigationController
 	{
 	private sealed class PendingCommand (DateTimeOffset sent, bool active)
 		{
+		/// <summary>
+		/// The instant the pending command was submitted.
+		/// </summary>
 		internal readonly DateTimeOffset Sent = sent;
+		/// <summary>
+		/// The activity expected from the pending command.
+		/// </summary>
 		internal readonly bool Active = active;
 		}
 	private sealed class HistoryUpdate (int address, int zone, RecordedUsage record, bool success)
 		{
+		/// <summary>
+		/// The RF address and one-based zone to which the history update belongs.
+		/// </summary>
 		internal readonly int Address = address, Zone = zone;
+		/// <summary>
+		/// The latest matching cloud usage record, or null when none was returned.
+		/// </summary>
 		internal readonly RecordedUsage Record = record;
+		/// <summary>
+		/// Whether the history request completed successfully.
+		/// </summary>
 		internal readonly bool Success = success;
 		}
 	private sealed class Session (DriverSettings settings)
 		{
+		/// <summary>
+		/// The configuration captured for this session.
+		/// </summary>
 		internal readonly DriverSettings Settings = settings;
+		/// <summary>
+		/// Cancellation shared by the session and its background work.
+		/// </summary>
 		internal readonly CancellationTokenSource Stop = new ();
+		/// <summary>
+		/// The connection owned by this session.
+		/// </summary>
 		internal IRainPointConnection Connection;
+		/// <summary>
+		/// Whether the session has completed discovery.
+		/// </summary>
 		internal bool Ready;
+		/// <summary>
+		/// Whether the session currently has an active push observer.
+		/// </summary>
 		internal bool LiveUpdates;
+		/// <summary>
+		/// The commissioned timers belonging to this session.
+		/// </summary>
 		internal IReadOnlyList<TimerIdentity> Timers = Array.Empty<TimerIdentity> ();
+		/// <summary>
+		/// Latest accepted observations keyed by timer RF address.
+		/// </summary>
 		internal readonly Dictionary<int, TimerReading> Readings = [];
+		/// <summary>
+		/// Latest usage updates keyed by timer address and zone.
+		/// </summary>
 		internal readonly Dictionary<string, HistoryUpdate> History = [];
+		/// <summary>
+		/// Commands awaiting device feedback, keyed by timer address and zone.
+		/// </summary>
 		internal readonly Dictionary<string, PendingCommand> Pending = [];
 		}
 	private readonly object _sync = new ();
@@ -42,19 +84,50 @@ public sealed class IrrigationController
 	private Session _session;
 	private Task _transition = Task.CompletedTask;
 	private bool _disposed;
+	/// <summary>
+	/// Creates the session coordinator with optional connection and clock substitutes.
+	/// </summary>
+	/// <param name="factory">An optional connection factory; null uses the production cloud connection.</param>
+	/// <param name="now">An optional UTC clock; null uses DateTimeOffset.UtcNow.</param>
 	public IrrigationController (Func<IRainPointConnection> factory = null, Func<DateTimeOffset> now = null)
 		{
 		_factory = factory ?? (() => new CloudConnection ());
 		_now = now ?? (() => DateTimeOffset.UtcNow);
 		}
+	/// <summary>
+	/// Occurs with the current timer catalog after discovery, metadata refresh or configuration removal.
+	/// </summary>
 	public event Action<IReadOnlyList<TimerIdentity>> CatalogChanged;
+	/// <summary>
+	/// Occurs with accepted feedback for a timer in the current session.
+	/// </summary>
 	public event Action<TimerReading> Reading;
+	/// <summary>
+	/// Occurs when configuration, cloud connectivity or feedback availability changes.
+	/// </summary>
 	public event Action<string> StateChanged;
+	/// <summary>
+	/// Occurs with RF address, zone and command-progress text; acknowledgement does not imply valve state.
+	/// </summary>
 	public event Action<int, int, string> CommandChanged;
+	/// <summary>
+	/// Occurs with RF address and current per-zone plan summaries.
+	/// </summary>
 	public event Action<int, string[]> PlansChanged;
+	/// <summary>
+	/// Occurs with RF address, zone, latest recorded usage and the history-read success flag.
+	/// </summary>
 	public event Action<int, int, RecordedUsage, bool> HistoryChanged;
+	/// <summary>
+	/// Occurs with a diagnostic message for the caller's logging system.
+	/// </summary>
 	public event Action<string> Diagnostic;
 
+	/// <summary>
+	/// Cancels the previous session before applying changed settings; null removes the configuration.
+	/// </summary>
+	/// <param name="settings">The next configuration, or null to disconnect and clear discovery.</param>
+	/// <returns>A task that completes when the operation finishes.</returns>
 	public Task ConfigureAsync (DriverSettings settings)
 		{
 		lock (_sync)
@@ -234,6 +307,14 @@ public sealed class IrrigationController
 			}
 		}
 
+	/// <summary>
+	/// Requests timed watering for a commissioned zone while rejecting stale or duplicate starts.
+	/// </summary>
+	/// <param name="timerId">The stable commissioned timer controller ID.</param>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <param name="minutes">The watering duration in whole minutes, from 1 through 120.</param>
+	/// <returns>A task that completes when the operation finishes; command completion is not proof of valve actuation.</returns>
+	/// <exception cref="System.ArgumentOutOfRangeException">An argument is outside the supported range described above.</exception>
 	public Task StartAsync (string timerId, int zone, int minutes)
 		{
 		ValidateZone (zone);
@@ -243,11 +324,22 @@ public sealed class IrrigationController
 			}
 		return CommandAsync (timerId, zone, minutes);
 		}
+	/// <summary>
+	/// Requests a stop for a commissioned zone without replaying uncertain writes.
+	/// </summary>
+	/// <param name="timerId">The stable commissioned timer controller ID.</param>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <returns>A task that completes when the operation finishes; command completion is not proof of valve actuation.</returns>
 	public Task StopAsync (string timerId, int zone)
 		{
 		ValidateZone (zone);
 		return CommandAsync (timerId, zone, null);
 		}
+	/// <summary>
+	/// Attempts to stop every actual zone independently so one failure does not suppress the other attempts.
+	/// </summary>
+	/// <param name="timerId">The stable commissioned timer controller ID.</param>
+	/// <returns>A task that completes when the operation finishes; command completion is not proof of valve actuation.</returns>
 	public async Task StopAllAsync (string timerId)
 		{
 		Session session;
@@ -329,6 +421,12 @@ public sealed class IrrigationController
 			}
 		}
 
+	/// <summary>
+	/// Refreshes the current timer session and optionally its saved-plan summaries.
+	/// </summary>
+	/// <param name="timerId">The stable commissioned timer controller ID.</param>
+	/// <param name="plans">Whether to refresh saved-plan summaries along with timer feedback.</param>
+	/// <returns>A task that completes when the operation finishes.</returns>
 	public async Task RefreshAsync (string timerId, bool plans)
 		{
 		Session session;
@@ -377,6 +475,9 @@ public sealed class IrrigationController
 		return session.Timers.Single (t => t.ControllerId == id);
 		}
 	private static string Key (int address, int zone) => address + ":" + zone;
+	/// <summary>
+	/// Marks commands whose expected device feedback has not arrived within the allowed interval.
+	/// </summary>
 	public void CheckFeedbackTimeouts ()
 		{
 		lock (_sync)
@@ -400,6 +501,10 @@ public sealed class IrrigationController
 			throw new ArgumentOutOfRangeException (nameof (zone));
 			}
 		}
+	/// <summary>
+	/// Prevents new work, cancels the active session and waits for its resources to close.
+	/// </summary>
+	/// <returns>A task that completes when the operation finishes.</returns>
 	public Task ShutdownAsync ()
 		{
 		lock (_sync)

@@ -8,7 +8,7 @@ All default tests are offline; no credentials, cloud login or valve operations a
 | RainPointCrestronDriver.Lifecycle.Tests | net10.0 desktop SDK | Real Crestron entity definitions, dynamic child registration, UI property/command/translation bindings and XML schema |
 | Package category in the SDK project | net10.0 loading merged net472 driver | Attributed JSON round trip through synthetic HTTP responses and embedded MQTT trust anchor |
 
-Development dependencies: NUnit **5.0.0**, NUnit3TestAdapter **6.3.0**, Microsoft.NET.Test.Sdk **18.10.1**, NUnit.Analyzers **4.15.0**. Visual Studio Test Explorer discovers the portable and desktop SDK suites through the NUnit adapter. Runtime dependencies are the released RainPointClient **1.2.0** NuGet package and Crestron.DeviceDrivers.DevKit **29.0.10**; the portable net472 projects use Microsoft.NETFramework.ReferenceAssemblies **1.0.3** for compilation.
+Development dependencies: NUnit **5.0.0**, NUnit3TestAdapter **6.3.0**, Microsoft.NET.Test.Sdk **18.10.1**, NUnit.Analyzers **4.15.0**. Visual Studio Test Explorer discovers the portable and desktop SDK suites through the NUnit adapter. Runtime dependencies are the released RainPointClient **1.2.1** NuGet package and Crestron.DeviceDrivers.DevKit **29.0.10**; the portable net472 projects use Microsoft.NETFramework.ReferenceAssemblies **1.0.3** for compilation.
 
 The SDK desktop harness restores its compatibility assembly from the public Crestron.DeviceDrivers.ManifestUtil **29.0.10** package. Its bytes match the previously used local SDK assembly. No private desktop assembly, credential or CI secret is required. This dependency is confined to the test host; the production merge excludes Crestron-provided assemblies.
 
@@ -48,3 +48,7 @@ Detailed dated evidence and earlier preview versions are retained in [DEVELOPMEN
 ## Version 1.1.0 validation
 
 The coordinated update passes 96 portable cases on each of net472 and net10.0, 47 SDK/UI cases and five merged-package checks (244 total). New cases cover one/two/three-zone command boundaries, Stop all after a failed stop, discovery and model replacement, plan reads, schema-valid UI variants, absent-zone programmable entities and aggregate state transitions. The client adds reference-capture and protocol tests; no physical HTV145FRF/HTV245FRF or installed-driver operation is claimed.
+
+## XML documentation checks
+
+The production core and driver projects generate XML documentation in Debug and Release. Compiler documentation warnings are errors. `tools/Documentation` additionally checks public, protected and internal declarations for summaries, parameter descriptions and return descriptions. The checker uses Roslyn from the .NET 10 SDK and has nine regression scenarios, run by the release/offline validation script.

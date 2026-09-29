@@ -5,6 +5,9 @@ using Crestron.DeviceDrivers.SDK.EntityModel.Attributes;
 
 namespace RainPoint.CrestronDriver
 	{
+	/// <summary>
+	/// Identifies the device categories understood by Crestron Home discovery.
+	/// </summary>
 	[EntityDataType (Id = "crestron:DeviceUxCategory")]
 	public enum DeviceUxCategory
 		{

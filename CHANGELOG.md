@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 — 2026-09-29
+
+- Documentation updates. No functional changes.
+
 ## 1.1.0 — 2026-09-29
 
 Add one- and two-zone timer UI/control handling with offline coverage. Correct NuGet feed packaging and update documentation.

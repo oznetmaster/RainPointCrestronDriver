@@ -17,6 +17,9 @@ using RainPoint.CrestronDriver.Core;
 
 namespace RainPoint.CrestronDriver;
 
+/// <summary>
+/// Presents one timer's reported state, zone controls and Crestron Home programming entities.
+/// </summary>
 internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEntity
 	{
 	private readonly object _sync = new ();
@@ -30,10 +33,16 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 	private bool _disposed;
 	private readonly bool[] _pending = new bool[3];
 	private readonly bool[] _pendingStart = new bool[3];
+	/// <summary>
+	/// Gets the timer's RF address within its hub.
+	/// </summary>
 	internal int Address
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the irrigation icon selected from reported activity and freshness.
+	/// </summary>
 	[EntityProperty (Id = "tileIcon")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string TileIcon
@@ -48,6 +57,13 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 				}
 			}
 		} = "icSprinklersOffDisabled";
+	/// <summary>
+	/// Creates the timer UI and programming surface, omitting programmability for absent zones.
+	/// </summary>
+	/// <param name="identity">The commissioned timer identity and assigned names.</param>
+	/// <param name="controller">The controller responsible for this platform session.</param>
+	/// <param name="args">SDK creation context, including the driver data directory and logger.</param>
+	/// <param name="resources">SDK resources belonging to this driver instance.</param>
 	internal RainPointTimerEntity (TimerIdentity identity, IrrigationController controller,
 		DriverControllerCreationArgs args, DriverImplementationResources resources) : base (identity.ControllerId)
 		{
@@ -86,14 +102,23 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}, null, TimeSpan.FromSeconds (1), TimeSpan.FromSeconds (1));
 		}
 
+	/// <summary>
+	/// Gets whether this timer has a second zone and should display its controls.
+	/// </summary>
 	[EntityProperty (Id = "hasZone2")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool HasZone2 => _zoneCount >= 2;
 
+	/// <summary>
+	/// Gets whether this timer has a third zone and should display its controls.
+	/// </summary>
 	[EntityProperty (Id = "hasZone3")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool HasZone3 => _zoneCount >= 3;
 
+	/// <summary>
+	/// Gets the assigned hub name used as the main detail-page title.
+	/// </summary>
 	[EntityProperty (Id = "hubLabel")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string HubLabel
@@ -108,6 +133,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "RainPoint hub";
 
+	/// <summary>
+	/// Gets the assigned name of zone 1.
+	/// </summary>
 	[EntityProperty (Id = "zone1Name")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone1Name
@@ -122,6 +150,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Zone 1";
 
+	/// <summary>
+	/// Gets the assigned name of zone 2.
+	/// </summary>
 	[EntityProperty (Id = "zone2Name")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone2Name
@@ -136,6 +167,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Zone 2";
 
+	/// <summary>
+	/// Gets the assigned name of zone 3.
+	/// </summary>
 	[EntityProperty (Id = "zone3Name")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone3Name
@@ -150,6 +184,10 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Zone 3";
 
+	/// <summary>
+	/// Updates assigned names for the same commissioned timer identity.
+	/// </summary>
+	/// <param name="identity">The commissioned timer identity and assigned names.</param>
 	internal void UpdateIdentity (TimerIdentity identity)
 		{
 		lock (_sync)
@@ -167,10 +205,16 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		}
 
+	/// <summary>
+	/// Gets the timer model used as the detail-page subtitle.
+	/// </summary>
 	[EntityProperty (Id = "deviceModel")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string DeviceModel { get; private set; } = "HTV345FRF";
 
+	/// <summary>
+	/// Gets the timer's assigned display name.
+	/// </summary>
 	[EntityProperty (Id = "deviceLabel")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string DeviceLabel
@@ -187,6 +231,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "RainPoint";
 
+	/// <summary>
+	/// Gets the aggregate reported activity text for the room-page tile.
+	/// </summary>
 	[EntityProperty (Id = "tileStatus")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string TileStatus
@@ -203,6 +250,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Waiting for feedback";
 
+	/// <summary>
+	/// Gets the current connection-state text shown on detail pages.
+	/// </summary>
 	[EntityProperty (Id = "connection", FriendlyName = "Connection state", NameLocalizationKey = "Programming_connection")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public string Connection
@@ -219,6 +269,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Connecting";
 
+	/// <summary>
+	/// Gets the reported battery description, including an unknown-state fallback.
+	/// </summary>
 	[EntityProperty (Id = "battery", FriendlyName = "Battery status", NameLocalizationKey = "Programming_battery")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public string Battery
@@ -235,6 +288,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Battery unknown";
 
+	/// <summary>
+	/// Gets the reported RF signal description, including an unknown-state fallback.
+	/// </summary>
 	[EntityProperty (Id = "signal")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Signal
@@ -251,6 +307,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "RF unknown";
 
+	/// <summary>
+	/// Gets the last timer report time formatted in UTC, or an unavailable message.
+	/// </summary>
 	[EntityProperty (Id = "reportTime")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string ReportTime
@@ -267,6 +326,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Report time unknown";
 
+	/// <summary>
+	/// Gets whether the timer's reported state is currently considered fresh.
+	/// </summary>
 	[EntityProperty (Id = "onlineIndicator:isOnline", FriendlyName = "Status available", NameLocalizationKey = "Programming_onlineIndicator_isOnline")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public bool IsOnline
@@ -283,6 +345,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = false;
 
+	/// <summary>
+	/// Gets whether fresh reported state is available for this timer.
+	/// </summary>
 	[EntityProperty (Id = "readyIndicator:isReady")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool IsReady
@@ -299,6 +364,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = false;
 
+	/// <summary>
+	/// Gets whether stop-all is available because activity is reported, pending or uncertain.
+	/// </summary>
 	[EntityProperty (Id = "canStop")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool CanStop
@@ -315,6 +383,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = false;
 
+	/// <summary>
+	/// Gets the activity description for zone 1, marked as last reported when stale.
+	/// </summary>
 	[EntityProperty (Id = "zone1Status")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone1Status
@@ -331,6 +402,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Unknown";
 
+	/// <summary>
+	/// Gets the most recent recorded usage volume for zone 1, formatted in litres.
+	/// </summary>
 	[EntityProperty (Id = "zone1Usage")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone1Usage
@@ -347,6 +421,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Last usage unknown";
 
+	/// <summary>
+	/// Gets the remaining-time or phase-time description for zone 1, based on reported timing.
+	/// </summary>
 	[EntityProperty (Id = "zone1Details")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone1Details
@@ -363,6 +440,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Configured duration unknown";
 
+	/// <summary>
+	/// Gets the reported alarm description for zone 1.
+	/// </summary>
 	[EntityProperty (Id = "zone1Alarms", FriendlyName = "Zone 1: Reported alarms", NameLocalizationKey = "Programming_zone1Alarms")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public string Zone1Alarms
@@ -379,6 +459,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Alarms unknown";
 
+	/// <summary>
+	/// Gets the latest command-progress message for zone 1; this is separate from reported valve state.
+	/// </summary>
 	[EntityProperty (Id = "zone1Command", FriendlyName = "Zone 1: Command feedback", NameLocalizationKey = "Programming_zone1Command")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public string Zone1Command
@@ -395,6 +478,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "No command sent";
 
+	/// <summary>
+	/// Gets the saved-plan summary for zone 1.
+	/// </summary>
 	[EntityProperty (Id = "zone1Plans")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone1Plans
@@ -411,6 +497,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Refresh plans to load";
 
+	/// <summary>
+	/// Gets whether zone 1 has fresh idle feedback and no pending command, allowing a new start.
+	/// </summary>
 	[EntityProperty (Id = "zone1CanStart")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool Zone1CanStart
@@ -427,6 +516,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = false;
 
+	/// <summary>
+	/// Gets the configured manual watering duration for zone 1, in whole minutes.
+	/// </summary>
 	[EntityProperty (Id = "zone1Minutes", RangeMinimum = 1, RangeMaximum = 120, RangeStepSize = 1, FriendlyName = "Zone 1: Selected duration (minutes)", NameLocalizationKey = "Programming_zone1Minutes")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public int Zone1Minutes
@@ -443,6 +535,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = 5;
 
+	/// <summary>
+	/// Gets the activity description for zone 2, marked as last reported when stale.
+	/// </summary>
 	[EntityProperty (Id = "zone2Status")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone2Status
@@ -459,6 +554,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Unknown";
 
+	/// <summary>
+	/// Gets the most recent recorded usage volume for zone 2, formatted in litres.
+	/// </summary>
 	[EntityProperty (Id = "zone2Usage")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone2Usage
@@ -475,6 +573,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Last usage unknown";
 
+	/// <summary>
+	/// Gets the remaining-time or phase-time description for zone 2, based on reported timing.
+	/// </summary>
 	[EntityProperty (Id = "zone2Details")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone2Details
@@ -491,6 +592,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Configured duration unknown";
 
+	/// <summary>
+	/// Gets the reported alarm description for zone 2.
+	/// </summary>
 	[EntityProperty (Id = "zone2Alarms", FriendlyName = "Zone 2: Reported alarms", NameLocalizationKey = "Programming_zone2Alarms")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public string Zone2Alarms
@@ -507,6 +611,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Alarms unknown";
 
+	/// <summary>
+	/// Gets the latest command-progress message for zone 2; this is separate from reported valve state.
+	/// </summary>
 	[EntityProperty (Id = "zone2Command", FriendlyName = "Zone 2: Command feedback", NameLocalizationKey = "Programming_zone2Command")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public string Zone2Command
@@ -523,6 +630,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "No command sent";
 
+	/// <summary>
+	/// Gets the saved-plan summary for zone 2.
+	/// </summary>
 	[EntityProperty (Id = "zone2Plans")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone2Plans
@@ -539,6 +649,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Refresh plans to load";
 
+	/// <summary>
+	/// Gets whether zone 2 has fresh idle feedback and no pending command, allowing a new start.
+	/// </summary>
 	[EntityProperty (Id = "zone2CanStart")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool Zone2CanStart
@@ -555,6 +668,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = false;
 
+	/// <summary>
+	/// Gets the configured manual watering duration for zone 2, in whole minutes.
+	/// </summary>
 	[EntityProperty (Id = "zone2Minutes", RangeMinimum = 1, RangeMaximum = 120, RangeStepSize = 1, FriendlyName = "Zone 2: Selected duration (minutes)", NameLocalizationKey = "Programming_zone2Minutes")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public int Zone2Minutes
@@ -571,6 +687,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = 5;
 
+	/// <summary>
+	/// Gets the activity description for zone 3, marked as last reported when stale.
+	/// </summary>
 	[EntityProperty (Id = "zone3Status")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone3Status
@@ -587,6 +706,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Unknown";
 
+	/// <summary>
+	/// Gets the most recent recorded usage volume for zone 3, formatted in litres.
+	/// </summary>
 	[EntityProperty (Id = "zone3Usage")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone3Usage
@@ -603,6 +725,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Last usage unknown";
 
+	/// <summary>
+	/// Gets the remaining-time or phase-time description for zone 3, based on reported timing.
+	/// </summary>
 	[EntityProperty (Id = "zone3Details")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone3Details
@@ -619,6 +744,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Configured duration unknown";
 
+	/// <summary>
+	/// Gets the reported alarm description for zone 3.
+	/// </summary>
 	[EntityProperty (Id = "zone3Alarms", FriendlyName = "Zone 3: Reported alarms", NameLocalizationKey = "Programming_zone3Alarms")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public string Zone3Alarms
@@ -635,6 +763,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Alarms unknown";
 
+	/// <summary>
+	/// Gets the latest command-progress message for zone 3; this is separate from reported valve state.
+	/// </summary>
 	[EntityProperty (Id = "zone3Command", FriendlyName = "Zone 3: Command feedback", NameLocalizationKey = "Programming_zone3Command")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public string Zone3Command
@@ -651,6 +782,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "No command sent";
 
+	/// <summary>
+	/// Gets the saved-plan summary for zone 3.
+	/// </summary>
 	[EntityProperty (Id = "zone3Plans")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone3Plans
@@ -667,6 +801,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Refresh plans to load";
 
+	/// <summary>
+	/// Gets whether zone 3 has fresh idle feedback and no pending command, allowing a new start.
+	/// </summary>
 	[EntityProperty (Id = "zone3CanStart")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool Zone3CanStart
@@ -683,6 +820,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = false;
 
+	/// <summary>
+	/// Gets the configured manual watering duration for zone 3, in whole minutes.
+	/// </summary>
 	[EntityProperty (Id = "zone3Minutes", RangeMinimum = 1, RangeMaximum = 120, RangeStepSize = 1, FriendlyName = "Zone 3: Selected duration (minutes)", NameLocalizationKey = "Programming_zone3Minutes")]
 	[EntityPropertyMetadata (Programmable = true, ExtensionUiProperty = true)]
 	public int Zone3Minutes
@@ -699,6 +839,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = 5;
 
+	/// <summary>
+	/// Gets the start, stop or stopping label for zone 1.
+	/// </summary>
 	[EntityProperty (Id = "zone1ActionLabel")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone1ActionLabel
@@ -712,6 +855,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			NotifyPropertyChanged ("zone1ActionLabel", new DriverEntityValue (value));
 			}
 		} = "Start timed watering";
+	/// <summary>
+	/// Gets whether the current context-sensitive action for zone 1 is enabled.
+	/// </summary>
 	[EntityProperty (Id = "zone1CanControl")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool Zone1CanControl
@@ -725,6 +871,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			NotifyPropertyChanged ("zone1CanControl", new DriverEntityValue (value));
 			}
 		} = false;
+	/// <summary>
+	/// Gets the start, stop or stopping label for zone 2.
+	/// </summary>
 	[EntityProperty (Id = "zone2ActionLabel")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone2ActionLabel
@@ -738,6 +887,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			NotifyPropertyChanged ("zone2ActionLabel", new DriverEntityValue (value));
 			}
 		} = "Start timed watering";
+	/// <summary>
+	/// Gets whether the current context-sensitive action for zone 2 is enabled.
+	/// </summary>
 	[EntityProperty (Id = "zone2CanControl")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool Zone2CanControl
@@ -751,6 +903,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			NotifyPropertyChanged ("zone2CanControl", new DriverEntityValue (value));
 			}
 		} = false;
+	/// <summary>
+	/// Gets the start, stop or stopping label for zone 3.
+	/// </summary>
 	[EntityProperty (Id = "zone3ActionLabel")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone3ActionLabel
@@ -764,6 +919,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			NotifyPropertyChanged ("zone3ActionLabel", new DriverEntityValue (value));
 			}
 		} = "Start timed watering";
+	/// <summary>
+	/// Gets whether the current context-sensitive action for zone 3 is enabled.
+	/// </summary>
 	[EntityProperty (Id = "zone3CanControl")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public bool Zone3CanControl
@@ -778,10 +936,17 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = false;
 
+	/// <summary>
+	/// Gets the numeric format used by the watering-duration controls.
+	/// </summary>
 	[EntityProperty (Id = "minutesFormat")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string MinutesFormat => "%s min";
 
+	/// <summary>
+	/// Updates connection availability and rerenders freshness-dependent feedback.
+	/// </summary>
+	/// <param name="state">The new connection-state text.</param>
 	internal void SetConnection (string state)
 		{
 		lock (_sync)
@@ -801,6 +966,10 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			Render ();
 			}
 		}
+	/// <summary>
+	/// Applies a timer reading and updates the UI and programming transitions.
+	/// </summary>
+	/// <param name="reading">The accepted timer observation.</param>
 	internal void Update (TimerReading reading)
 		{
 		lock (_sync)
@@ -867,6 +1036,11 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			RenderProgramming (fresh);
 			}
 		}
+	/// <summary>
+	/// Records command progress for one zone without treating acknowledgement as valve feedback.
+	/// </summary>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <param name="message">Command progress text to display separately from reported activity.</param>
 	internal void CommandResult (int zone, string message)
 		{
 		lock (_sync)
@@ -896,6 +1070,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			Render ();
 			}
 		}
+	/// <summary>
+	/// Gets the timestamp label belonging to the displayed usage record for zone 1.
+	/// </summary>
 	[EntityProperty (Id = "zone1UsageWhen")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone1UsageWhen
@@ -910,6 +1087,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Date unavailable";
 
+	/// <summary>
+	/// Gets the availability or refresh status of recorded usage for zone 1.
+	/// </summary>
 	[EntityProperty (Id = "zone1HistoryStatus")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone1HistoryStatus
@@ -924,6 +1104,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Waiting for history";
 
+	/// <summary>
+	/// Gets the timestamp label belonging to the displayed usage record for zone 2.
+	/// </summary>
 	[EntityProperty (Id = "zone2UsageWhen")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone2UsageWhen
@@ -938,6 +1121,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Date unavailable";
 
+	/// <summary>
+	/// Gets the availability or refresh status of recorded usage for zone 2.
+	/// </summary>
 	[EntityProperty (Id = "zone2HistoryStatus")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone2HistoryStatus
@@ -952,6 +1138,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Waiting for history";
 
+	/// <summary>
+	/// Gets the timestamp label belonging to the displayed usage record for zone 3.
+	/// </summary>
 	[EntityProperty (Id = "zone3UsageWhen")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone3UsageWhen
@@ -966,6 +1155,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Date unavailable";
 
+	/// <summary>
+	/// Gets the availability or refresh status of recorded usage for zone 3.
+	/// </summary>
 	[EntityProperty (Id = "zone3HistoryStatus")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
 	public string Zone3HistoryStatus
@@ -980,6 +1172,12 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		} = "Waiting for history";
 
+	/// <summary>
+	/// Updates a zone's usage volume and timestamp together, retaining newer records on late responses.
+	/// </summary>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <param name="record">The latest matching usage record, or null when no record was found.</param>
+	/// <param name="success">Whether the history request completed successfully.</param>
 	internal void UpdateHistory (int zone, RecordedUsage record, bool success)
 		{
 		lock (_sync)
@@ -1014,6 +1212,10 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			}
 		}
 
+	/// <summary>
+	/// Updates the plan summaries for the timer's actual zones.
+	/// </summary>
+	/// <param name="plans">One plan-summary string per actual timer zone, in zone order.</param>
 	internal void UpdatePlans (string[] plans)
 		{
 		lock (_sync)
@@ -1048,13 +1250,26 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 		else
 			_ = _controller.StartAsync (ControllerId, zone, minutes);
 		}
+	/// <summary>
+	/// Invokes the currently available start or stop action for zone 1; absent zones are ignored.
+	/// </summary>
 	[EntityCommand (Id = "operateZone1")]
 	public void OperateZone1 () => OperateZone (1);
+	/// <summary>
+	/// Invokes the currently available start or stop action for zone 2; absent zones are ignored.
+	/// </summary>
 	[EntityCommand (Id = "operateZone2")]
 	public void OperateZone2 () => OperateZone (2);
+	/// <summary>
+	/// Invokes the currently available start or stop action for zone 3; absent zones are ignored.
+	/// </summary>
 	[EntityCommand (Id = "operateZone3")]
 	public void OperateZone3 () => OperateZone (3);
 
+	/// <summary>
+	/// Changes the next manual duration for zone 1 only while starting is allowed.
+	/// </summary>
+	/// <param name="value">The requested manual duration in whole minutes, bounded to the supported control range.</param>
 	[EntityCommand (Id = "setZone1Minutes")]
 	public void SetZone1Minutes ([EntityParameter (RangeMinimum = 1, RangeMaximum = 120)] int value)
 		{
@@ -1067,13 +1282,23 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 				}
 			}
 		}
+	/// <summary>
+	/// Requests timed watering for zone 1 using its configured manual duration.
+	/// </summary>
 	[EntityCommand (Id = "startZone1", FriendlyName = "Start zone 1", NameLocalizationKey = "Programming_startZone1")]
 	[EntityCommandMetadata (Programmable = true)]
 	public void StartZone1 () => _ = _controller.StartAsync (ControllerId, 1, Zone1Minutes);
+	/// <summary>
+	/// Requests a stop for zone 1 without changing other zones.
+	/// </summary>
 	[EntityCommand (Id = "stopZone1", FriendlyName = "Stop zone 1", NameLocalizationKey = "Programming_stopZone1")]
 	[EntityCommandMetadata (Programmable = true)]
 	public void StopZone1 () => _ = _controller.StopAsync (ControllerId, 1);
 
+	/// <summary>
+	/// Changes the next manual duration for zone 2 only while starting is allowed.
+	/// </summary>
+	/// <param name="value">The requested manual duration in whole minutes, bounded to the supported control range.</param>
 	[EntityCommand (Id = "setZone2Minutes")]
 	public void SetZone2Minutes ([EntityParameter (RangeMinimum = 1, RangeMaximum = 120)] int value)
 		{
@@ -1086,13 +1311,23 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 				}
 			}
 		}
+	/// <summary>
+	/// Requests timed watering for zone 2 using its configured manual duration.
+	/// </summary>
 	[EntityCommand (Id = "startZone2", FriendlyName = "Start zone 2", NameLocalizationKey = "Programming_startZone2")]
 	[EntityCommandMetadata (Programmable = true)]
 	public void StartZone2 () => _ = _controller.StartAsync (ControllerId, 2, Zone2Minutes);
+	/// <summary>
+	/// Requests a stop for zone 2 without changing other zones.
+	/// </summary>
 	[EntityCommand (Id = "stopZone2", FriendlyName = "Stop zone 2", NameLocalizationKey = "Programming_stopZone2")]
 	[EntityCommandMetadata (Programmable = true)]
 	public void StopZone2 () => _ = _controller.StopAsync (ControllerId, 2);
 
+	/// <summary>
+	/// Changes the next manual duration for zone 3 only while starting is allowed.
+	/// </summary>
+	/// <param name="value">The requested manual duration in whole minutes, bounded to the supported control range.</param>
 	[EntityCommand (Id = "setZone3Minutes")]
 	public void SetZone3Minutes ([EntityParameter (RangeMinimum = 1, RangeMaximum = 120)] int value)
 		{
@@ -1105,20 +1340,38 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 				}
 			}
 		}
+	/// <summary>
+	/// Requests timed watering for zone 3 using its configured manual duration.
+	/// </summary>
 	[EntityCommand (Id = "startZone3", FriendlyName = "Start zone 3", NameLocalizationKey = "Programming_startZone3")]
 	[EntityCommandMetadata (Programmable = true)]
 	public void StartZone3 () => _ = _controller.StartAsync (ControllerId, 3, Zone3Minutes);
+	/// <summary>
+	/// Requests a stop for zone 3 without changing other zones.
+	/// </summary>
 	[EntityCommand (Id = "stopZone3", FriendlyName = "Stop zone 3", NameLocalizationKey = "Programming_stopZone3")]
 	[EntityCommandMetadata (Programmable = true)]
 	public void StopZone3 () => _ = _controller.StopAsync (ControllerId, 3);
 
+	/// <summary>
+	/// Requests an independent stop attempt for every zone on this timer.
+	/// </summary>
 	[EntityCommand (Id = "stopAll", FriendlyName = "Stop all zones", NameLocalizationKey = "Programming_stopAll")]
 	[EntityCommandMetadata (Programmable = true)]
 	public void StopAll () => _ = _controller.StopAllAsync (ControllerId);
+	/// <summary>
+	/// Requests fresh timer status through the controller.
+	/// </summary>
 	[EntityCommand (Id = "refresh")]
 	public void Refresh () => _ = _controller.RefreshAsync (ControllerId, false);
+	/// <summary>
+	/// Requests fresh saved-plan summaries when the plans page is opened.
+	/// </summary>
 	[EntityCommand (Id = "refreshPlans")]
 	public void RefreshPlans () => _ = _controller.RefreshAsync (ControllerId, true);
+	/// <summary>
+	/// Stops the presentation timer and releases the SDK entity resources.
+	/// </summary>
 	public override void Dispose ()
 		{
 		lock (_sync)

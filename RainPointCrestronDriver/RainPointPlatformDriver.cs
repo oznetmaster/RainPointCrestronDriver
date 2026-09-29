@@ -18,6 +18,9 @@ using RainPoint.CrestronDriver.Core;
 
 namespace RainPoint.CrestronDriver;
 
+/// <summary>
+/// Coordinates account configuration, timer discovery and child entities for one RainPoint hub.
+/// </summary>
 public sealed class RainPointPlatformDriver : ReflectedAttributeDriverEntity
 	{
 	private readonly object _sync = new ();
@@ -28,29 +31,58 @@ public sealed class RainPointPlatformDriver : ReflectedAttributeDriverEntity
 	private Dictionary<string, string> _configuration = [];
 	private DriverSettings _settings;
 	private bool _disposed;
+	/// <summary>
+	/// Gets the task that completes when disposal has finished shutting down the cloud session.
+	/// </summary>
 	internal Task Shutdown { get; private set; } = Task.CompletedTask;
+	/// <summary>
+	/// Gets the SDK controller for validating and applying configuration values.
+	/// </summary>
 	internal DataDrivenConfigurationController ConfigurationController
 		{
 		get;
 		}
 
+	/// <summary>
+	/// Gets the discovered timer descriptions keyed by stable child-controller ID.
+	/// </summary>
 	[EntityProperty (Id = "platform:managedDevices", Type = DriverEntityValueType.DeviceDictionary, ItemTypeRef = "platform:ManagedDevice")]
 	public IDictionary<string, PlatformManagedDevice> ManagedDevices { get; private set; } = new Dictionary<string, PlatformManagedDevice> ();
+	/// <summary>
+	/// Gets whether the platform currently considers its cloud connection available.
+	/// </summary>
 	[EntityProperty (Id = "onlineIndicator:isOnline")]
 	public bool IsOnline
 		{
 		get; private set;
 		}
+	/// <summary>
+	/// Gets whether the platform is online and has discovered at least one timer.
+	/// </summary>
 	[EntityProperty (Id = "readyIndicator:isReady")]
 	public bool IsReady
 		{
 		get; private set;
 		}
+	/// <summary>
+	/// Gets the current connection or configuration status text.
+	/// </summary>
 	[EntityProperty (Id = "status")]
 	public string Status { get; private set; } = "Not configured";
 
+	/// <summary>
+	/// Initializes the platform and subscribes its child entities to controller updates.
+	/// </summary>
+	/// <param name="args">SDK creation context, including the driver data directory and logger.</param>
+	/// <param name="resources">SDK resources belonging to this driver instance.</param>
 	public RainPointPlatformDriver (DriverControllerCreationArgs args, DriverImplementationResources resources)
 		: this (args, resources, new IrrigationController ()) { }
+	/// <summary>
+	/// Initializes the platform and subscribes its child entities to controller updates.
+	/// </summary>
+	/// <param name="args">SDK creation context, including the driver data directory and logger.</param>
+	/// <param name="resources">SDK resources belonging to this driver instance.</param>
+	/// <param name="controller">The controller responsible for this platform session.</param>
 	internal RainPointPlatformDriver (DriverControllerCreationArgs args, DriverImplementationResources resources, IrrigationController controller)
 		: base (DriverController.RootControllerId)
 		{
@@ -144,6 +176,13 @@ public sealed class RainPointPlatformDriver : ReflectedAttributeDriverEntity
 			}
 		}
 
+	/// <summary>
+	/// Validates configuration changes and starts the corresponding asynchronous session transition.
+	/// </summary>
+	/// <param name="action">The configuration action requested by the SDK.</param>
+	/// <param name="step">The SDK configuration step identifier.</param>
+	/// <param name="values">Submitted configuration values, or null when no values were supplied.</param>
+	/// <returns>Configuration errors, or null when the values were accepted or cleared.</returns>
 	internal ConfigurationItemErrors ApplyConfiguration (DataDrivenConfigurationController.ApplyConfigurationAction action,
 		string step, IDictionary<string, DriverEntityValue?> values)
 		{
@@ -208,6 +247,9 @@ public sealed class RainPointPlatformDriver : ReflectedAttributeDriverEntity
 		return null;
 		}
 
+	/// <summary>
+	/// Requests a fresh session using the current configuration after closing the previous session.
+	/// </summary>
 	[EntityCommand (Id = "reconnect")]
 	public void Reconnect ()
 		{
@@ -221,6 +263,9 @@ public sealed class RainPointPlatformDriver : ReflectedAttributeDriverEntity
 			await _controller.ConfigureAsync (_settings).ConfigureAwait (false);
 			}
 		}
+	/// <summary>
+	/// Disposes child entities and begins asynchronous cloud-session shutdown.
+	/// </summary>
 	public override void Dispose ()
 		{
 		lock (_sync)

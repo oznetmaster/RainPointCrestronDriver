@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Neil Colvin. MIT with Commons Clause; see LICENSE.
 [CmdletBinding()]
-param([string]$Version='1.1.0', [string]$OutputDirectory='artifacts/release')
+param([string]$Version='1.1.1', [string]$OutputDirectory='artifacts/release')
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 Push-Location $root

@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Neil Colvin. MIT with Commons Clause; see LICENSE.
 [CmdletBinding()]
-param([string]$Version='1.1.0', [switch]$RequireTag)
+param([string]$Version='1.1.1', [switch]$RequireTag)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 if($Version -cnotmatch '^\d+\.\d+\.\d+$'){throw 'Use major.minor.patch.'}

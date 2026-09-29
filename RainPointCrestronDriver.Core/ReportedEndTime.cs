@@ -9,6 +9,14 @@ namespace RainPoint.CrestronDriver.Core;
 /// <summary>Resolves the timer's local end time using the cloud home's reported offset table.</summary>
 public static class ReportedEndTime
 	{
+	/// <summary>
+	/// Resolves a local timer end time against the home's offset table, rejecting invalid or ambiguous times.
+	/// </summary>
+	/// <param name="local">The timer-reported local end time, or null when absent.</param>
+	/// <param name="baseOffset">The home standard-time UTC offset.</param>
+	/// <param name="daylightAdjustment">The daylight-saving adjustment to the standard offset.</param>
+	/// <param name="transitions">Ordered UTC transition instants delimiting the supported offset intervals.</param>
+	/// <returns>The unambiguous end instant in UTC, or null when the offset data cannot resolve it.</returns>
 	public static DateTimeOffset? Resolve (DateTime? local, TimeSpan baseOffset, TimeSpan daylightAdjustment, IReadOnlyList<DateTimeOffset> transitions)
 		{
 		if (!local.HasValue || transitions == null)

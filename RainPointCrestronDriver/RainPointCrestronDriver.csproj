@@ -57,4 +57,13 @@
     <Error Condition="'$(PackageDriverPkgPath)' == '' Or !Exists('$(PackageDriverPkgPath)')" Text="Run tools/New-ReleaseAssets.ps1 to pack the validated driver package." />
   </Target>
   <Import Project="RainPointCrestronDriver.Local.targets" Condition="Exists('RainPointCrestronDriver.Local.targets')" />
+
+  <!-- XML documentation is part of the supported source/API contract in both configurations. -->
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarningsAsErrors>$(WarningsAsErrors);CS1591;CS1570;CS1572;CS1573;CS1574;CS1580;CS1581;CS1584;CS1587;CS1711;CS1712</WarningsAsErrors>
+    <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Debug'">true</TreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors Condition="'$(Configuration)' == 'Debug'">true</CodeAnalysisTreatWarningsAsErrors>
+  </PropertyGroup>
+  <Import Project="../tools/Documentation.targets" />
 </Project>

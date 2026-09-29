@@ -8,6 +8,6 @@ The client uses the app's shared per-zone control and plan contract, with separa
 
 ## Coordinated local validation
 
-The default package reference is RainPointClient 1.2.0. To validate future coordinated changes against a local client checkout, pass `-p:RainPointClientProject=C:/Projects/RainPointClient/src/RainPointClient/RainPointClient.csproj` to `dotnet test` for the portable and SDK test projects, and to `dotnet build` for the production driver. Release validation uses the published NuGet package; the override is only for coordinated local development.
+The default package reference is RainPointClient 1.2.1. To validate future coordinated changes against a local client checkout, pass `-p:RainPointClientProject=C:/Projects/RainPointClient/src/RainPointClient/RainPointClient.csproj` to `dotnet test` for the portable and SDK test projects, and to `dotnet build` for the production driver. Release validation uses the published NuGet package; the override is only for coordinated local development.
 
 This work does not deploy to a processor, operate valves, or alter the published 1.0.0 package.

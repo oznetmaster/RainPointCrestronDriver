@@ -17,7 +17,14 @@ internal sealed class UsageHistoryWorker
 	{
 	private sealed class Job
 		{
-		internal int Remaining; internal Task Task;
+		/// <summary>
+		/// The number of remaining history-read attempts for this job.
+		/// </summary>
+		internal int Remaining;
+		/// <summary>
+		/// The task executing this history job.
+		/// </summary>
+		internal Task Task;
 		}
 	private readonly object _sync = new ();
 	private readonly Dictionary<string, Job> _jobs = [];
@@ -27,6 +34,13 @@ internal sealed class UsageHistoryWorker
 	private readonly Action<int, int, RecordedUsage, bool> _publish;
 	private readonly Func<TimeSpan, CancellationToken, Task> _delay;
 	private Task _closing;
+	/// <summary>
+	/// Creates the history worker with injected read, publication and optional delay operations.
+	/// </summary>
+	/// <param name="read">Reads the latest usage for an RF address and zone.</param>
+	/// <param name="publish">Receives the address, zone, record and success flag for each completed read.</param>
+	/// <param name="token">Cancellation for the operation.</param>
+	/// <param name="delay">An optional cancellable delay implementation; null uses Task.Delay.</param>
 	internal UsageHistoryWorker (Func<int, int, CancellationToken, Task<RecordedUsage>> read,
 		Action<int, int, RecordedUsage, bool> publish, CancellationToken token,
 		Func<TimeSpan, CancellationToken, Task> delay = null)
@@ -36,6 +50,12 @@ internal sealed class UsageHistoryWorker
 		_delay = delay ?? Task.Delay;
 		_stop = CancellationTokenSource.CreateLinkedTokenSource (token);
 		}
+	/// <summary>
+	/// Coalesces a zone history request, allowing up to three reads for a completion update.
+	/// </summary>
+	/// <param name="address">The timer RF address within the configured hub.</param>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <param name="completion">Whether this read follows watering completion and may use bounded delayed retries.</param>
 	internal void Request (int address, int zone, bool completion)
 		{
 		lock (_sync)
@@ -87,6 +107,10 @@ internal sealed class UsageHistoryWorker
 		catch (OperationCanceledException) when (token.IsCancellationRequested) { }
 		finally { lock (_sync) { if (_jobs.TryGetValue (key, out var current) && ReferenceEquals (current, job)) _jobs.Remove (key); } }
 		}
+	/// <summary>
+	/// Cancels pending reads and delays and waits for all history jobs to finish.
+	/// </summary>
+	/// <returns>A task that completes when the operation finishes; command completion is not proof of valve actuation.</returns>
 	internal Task StopAsync ()
 		{
 		lock (_sync)

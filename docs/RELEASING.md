@@ -1,6 +1,6 @@
 # Preparing and publishing a release
 
-The release version is 1.1.0. Its four-part Crestron manifest version is 1.1.000.0018; build 18 follows the initial release. Keep both versions, the manifest date, README, changelog and release notes aligned. Future releases must increase the installed manifest version.
+The release version is 1.1.1. Its four-part Crestron manifest version is 1.1.001.0019. Keep both versions, the manifest date, README, changelog and release notes aligned. Future releases must increase the installed manifest version.
 
 ## Local validation
 
@@ -24,6 +24,6 @@ The release workflow requires successful Tests workflow evidence for the exact t
 
 ## Publication
 
-After validation, commit the prepared source, wait for the Tests workflow to pass, then create and push an annotated v1.1.0 tag at that exact commit. The tag starts Release Package, which exchanges its GitHub identity for a short-lived NuGet credential, publishes the verified NuGet distribution, and publishes the GitHub release using RELEASE-NOTES.md and the prepared assets. Manual retry accepts an existing version tag; it never creates or moves a tag. Existing NuGet versions are immutable.
+After validation, commit the prepared source, wait for the Tests workflow to pass, then create and push an annotated v1.1.1 tag at that exact commit. The tag starts Release Package, which exchanges its GitHub identity for a short-lived NuGet credential, publishes the verified NuGet distribution, and publishes the GitHub release using RELEASE-NOTES.md and the prepared assets. Manual retry accepts an existing version tag; it never creates or moves a tag. Existing NuGet versions are immutable.
 
 Verify the GitHub assets, NuGet availability and a fresh-cache download after publication. Processor tests live in the separate CrestronLibraryTests solution and are not production release assets. Local account settings, credentials, test journals and processor evidence must not be committed.
