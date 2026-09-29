@@ -251,12 +251,14 @@ public sealed class IrrigationController
 	public async Task StopAllAsync (string timerId)
 		{
 		Session session;
+		int zoneCount;
 		lock (_sync)
 			{
 			session = _session;
+			zoneCount = FindCurrent (session, timerId).ZoneCount;
 			}
 		// Each zone is attempted independently; one failed stop cannot suppress the others.
-		for (int zone = 1; zone <= 3; zone++)
+		for (int zone = 1; zone <= zoneCount; zone++)
 			{
 			await CommandAsync (timerId, zone, null, session, true).ConfigureAwait (false);
 			}
@@ -275,6 +277,8 @@ public sealed class IrrigationController
 			lock (_sync)
 				{
 				timer = FindCurrent (session, timerId);
+				if (zone > timer.ZoneCount)
+					return;
 				string key = Key (timer.Address, zone);
 				if (minutes.HasValue)
 					{

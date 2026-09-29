@@ -60,6 +60,15 @@ public sealed class PackageTests
 		Assert.That (certificate.Subject, Is.Not.Empty);
 		Assert.That (certificate.HasPrivateKey, Is.False);
 		}
+	[TestCase ("HTV145FRF", 1), TestCase ("HTV245FRF", 2), TestCase ("HTV345FRF", 3)]
+	public void MergedClientRetainsAllRecognizedTimerVariants (string model, int count)
+		{
+		Type deviceType = Package ().GetType ("RainPointClient.RainPointDevice", true);
+		object device = Activator.CreateInstance (deviceType);
+		deviceType.GetProperty ("Model").SetValue (device, model);
+		Assert.That (deviceType.GetProperty ("SupportedZoneCount").GetValue (device), Is.EqualTo (count));
+		}
+
 	private sealed class FixtureTransport : HttpMessageHandler
 		{
 		internal int Requests;

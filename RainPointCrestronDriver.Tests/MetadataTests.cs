@@ -119,10 +119,38 @@ public sealed class MetadataTests
 		Assert.That (_handler.LastHistoryQuery, Does.Contain ("port=3"));
 		}
 
+	[TestCase ("HTV145FRF", 1), TestCase ("HTV245FRF", 2)]
+	public async Task VariantDiscoveryRefreshAndPlansUseActualCount (string model, int count)
+		{
+		await _connection.CloseAsync ();
+		_handler.Model = model;
+		_handler.ZoneCount = count;
+		var client = new RainPointCloudClient (_http, new Uri ("https://fixture.invalid/"));
+		await client.LoginAsync ("fixture@example.invalid", "fixture", "44");
+		var hub = (await client.GetHubsAsync (42)).Single ();
+		_connection = new CloudConnection (client);
+		_connection.InitializeMetadata (hub);
+		_connection.CatalogChanged += value => _catalogs.Add (value);
+		_connection.PlansChanged += (_, value) => _plans.Add (value);
+		_handler.Reads = 0;
+		await _connection.RefreshMetadataAsync (CancellationToken.None);
+		Assert.That (_catalogs.Single ().Single ().Model, Is.EqualTo (model));
+		Assert.That (_catalogs.Single ().Single ().ZoneCount, Is.EqualTo (count));
+		Assert.That (_plans.Single (), Has.Length.EqualTo (count));
+		Assert.That (_plans.Single ().All (p => p.StartsWith ("No saved plans")), Is.True);
+		Assert.That (_handler.Reads, Is.EqualTo (count + 1));
+		_handler.Model = "HTV345FRF";
+		_handler.ZoneCount = 3;
+		await Assert.ThrowsAsync<InvalidOperationException> (() => _connection.RefreshMetadataAsync (CancellationToken.None));
+		Assert.That (_catalogs, Has.Count.EqualTo (1));
+		}
+
 	private sealed class FixtureHandler : HttpMessageHandler
 		{
 		internal string Name = "Original", TransportName = "fixture-device";
 		internal int Reads, Writes;
+		internal string Model = "HTV345FRF";
+		internal int ZoneCount = 3;
 		internal string Events = "[]", LastHistoryQuery;
 		internal bool FailReads;
 		internal readonly TaskCompletionSource<bool> Failed = new (TaskCreationOptions.RunContinuationsAsynchronously);
@@ -143,6 +171,9 @@ public sealed class MetadataTests
 					throw new HttpRequestException ("Fixture failure");
 					}
 				body = "{\"code\":0,\"data\":[{\"mid\":101,\"name\":\"" + Name + " hub\",\"model\":\"HWG023WBRF\",\"deviceName\":\"" + TransportName + "\",\"productKey\":\"fixture-key\",\"subDevices\":[{\"sid\":201,\"addr\":2,\"model\":\"HTV345FRF\",\"name\":\"" + Name + " timer\",\"portDescribe\":\"Lawn|Beds|Tap\",\"portNumber\":3,\"softVer\":\"130\",\"param\":\"settings,/,|settings,/,|settings,/,\"}]}]}";
+				body = body.Replace ("HTV345FRF", Model).Replace ("\"portNumber\":3", "\"portNumber\":" + ZoneCount)
+					.Replace ("settings,/,|settings,/,|settings,/,", string.Join ("|", Enumerable.Repeat ("settings,/,", ZoneCount)));
+
 				}
 			else if (request.Method == HttpMethod.Get && request.RequestUri.AbsolutePath.EndsWith ("/event/list"))
 				{

@@ -20,6 +20,7 @@ namespace RainPoint.CrestronDriver;
 internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEntity
 	{
 	private readonly object _sync = new ();
+	private readonly int _zoneCount;
 	private readonly IrrigationController _controller;
 	private readonly Timer _ageTimer;
 	private TimerReading _reading;
@@ -51,8 +52,26 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 		DriverControllerCreationArgs args, DriverImplementationResources resources) : base (identity.ControllerId)
 		{
 		Address = identity.Address;
+		_zoneCount = identity.ZoneCount;
 		_controller = controller;
 		UpdateIdentity (identity);
+		var state = GetState ();
+		var definition = state.Definition;
+		bool AbsentZone (string id) => Enumerable.Range (_zoneCount + 1, 3 - _zoneCount)
+			.Any (zone => id.IndexOf ("zone" + zone, StringComparison.OrdinalIgnoreCase) >= 0);
+		foreach (string id in definition.Properties.Keys.Where (AbsentZone).ToArray ())
+			{
+			RemoveProperty (id);
+			// Hidden UI controls still need valid bindings, but no programmable property.
+			if (definition.PropertyMetadata.TryGetValue (id, out var metadata) && metadata.ExtensionUiProperty)
+				AddProperty (this, id, new CachedPropertyInstance (definition.Properties[id], new DriverEntityPropertyMetadata (false, true))
+					{ Value = state.PropertyValues[id] });
+			}
+		foreach (string id in definition.Commands.Keys.Where (AbsentZone).ToArray ())
+			if (!id.StartsWith ("operateZone", StringComparison.Ordinal) && !id.StartsWith ("setZone", StringComparison.Ordinal))
+				RemoveCommand (id);
+		foreach (string id in definition.Events.Keys.Where (AbsentZone).ToArray ())
+			RemoveEvent (id);
 		var ui = UiDefinitionProperty.LoadFromDirectoryIfExists (args.DriverDataDirectoryPath, resources.InitLogger, LogEntryLevel.Error);
 		if (ui != null)
 			{
@@ -66,6 +85,14 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 				Render ();
 			}, null, TimeSpan.FromSeconds (1), TimeSpan.FromSeconds (1));
 		}
+
+	[EntityProperty (Id = "hasZone2")]
+	[EntityPropertyMetadata (ExtensionUiProperty = true)]
+	public bool HasZone2 => _zoneCount >= 2;
+
+	[EntityProperty (Id = "hasZone3")]
+	[EntityPropertyMetadata (ExtensionUiProperty = true)]
+	public bool HasZone3 => _zoneCount >= 3;
 
 	[EntityProperty (Id = "hubLabel")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
@@ -130,12 +157,19 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			if (_disposed || identity.Address != Address || identity.ControllerId != ControllerId)
 				return;
 			DeviceLabel = identity.Name;
+			DeviceModel = identity.Model;
 			HubLabel = string.IsNullOrWhiteSpace (identity.HubName) ? "RainPoint hub" : identity.HubName;
 			Zone1Name = identity.ZoneName (1);
-			Zone2Name = identity.ZoneName (2);
-			Zone3Name = identity.ZoneName (3);
+			if (_zoneCount >= 2)
+				Zone2Name = identity.ZoneName (2);
+			if (_zoneCount >= 3)
+				Zone3Name = identity.ZoneName (3);
 			}
 		}
+
+	[EntityProperty (Id = "deviceModel")]
+	[EntityPropertyMetadata (ExtensionUiProperty = true)]
+	public string DeviceModel { get; private set; } = "HTV345FRF";
 
 	[EntityProperty (Id = "deviceLabel")]
 	[EntityPropertyMetadata (ExtensionUiProperty = true)]
@@ -793,7 +827,7 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			TileIcon = !fresh ? "icSprinklersOffDisabled" : _reading.Zones.Any (z => z.Active == true) ? "icSprinklersOn" : "icSprinklersOff";
 			IsOnline = fresh;
 			IsReady = fresh;
-			CanStop = _available && (!fresh || _reading.Zones.Count != 3 || _reading.Zones.Any (z => z.Active != false) || _pending.Any (pending => pending));
+			CanStop = _available && (!fresh || _reading.Zones.Count != _zoneCount || _reading.Zones.Any (z => z.Active != false) || _pending.Any (pending => pending));
 			Battery = _reading?.Battery ?? "Battery unknown";
 			Signal = _reading?.Signal ?? "RF unknown";
 			ReportTime = _reading?.ReportTime?.ToUniversalTime ().ToString ("yyyy-MM-dd HH:mm:ss 'UTC'", CultureInfo.InvariantCulture) ?? "Report time unknown";
@@ -806,24 +840,30 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			ZoneControl control1 = Control (1);
 			Zone1ActionLabel = control1.Label;
 			Zone1CanControl = control1.Enabled;
-			ZoneReading zone2 = _reading?.Zones.FirstOrDefault (x => x.Zone == 2);
-			Zone2Status = zone2 == null ? "Unknown" : (fresh ? "" : "Last reported: ") + zone2.Status;
-			// Zone 2 history volume and date are updated together by UpdateHistory.
-			Zone2Details = zone2?.TimeLeft (DateTimeOffset.UtcNow, fresh) ?? "Time left unavailable";
-			Zone2Alarms = zone2?.Alarms ?? "Alarms unknown";
-			Zone2CanStart = fresh && zone2?.Active == false && !_pending[1];
-			ZoneControl control2 = Control (2);
-			Zone2ActionLabel = control2.Label;
-			Zone2CanControl = control2.Enabled;
-			ZoneReading zone3 = _reading?.Zones.FirstOrDefault (x => x.Zone == 3);
-			Zone3Status = zone3 == null ? "Unknown" : (fresh ? "" : "Last reported: ") + zone3.Status;
-			// Zone 3 history volume and date are updated together by UpdateHistory.
-			Zone3Details = zone3?.TimeLeft (DateTimeOffset.UtcNow, fresh) ?? "Time left unavailable";
-			Zone3Alarms = zone3?.Alarms ?? "Alarms unknown";
-			Zone3CanStart = fresh && zone3?.Active == false && !_pending[2];
-			ZoneControl control3 = Control (3);
-			Zone3ActionLabel = control3.Label;
-			Zone3CanControl = control3.Enabled;
+			if (_zoneCount >= 2)
+				{
+				ZoneReading zone2 = _reading?.Zones.FirstOrDefault (x => x.Zone == 2);
+				Zone2Status = zone2 == null ? "Unknown" : (fresh ? "" : "Last reported: ") + zone2.Status;
+				// Zone 2 history volume and date are updated together by UpdateHistory.
+				Zone2Details = zone2?.TimeLeft (DateTimeOffset.UtcNow, fresh) ?? "Time left unavailable";
+				Zone2Alarms = zone2?.Alarms ?? "Alarms unknown";
+				Zone2CanStart = fresh && zone2?.Active == false && !_pending[1];
+				ZoneControl control2 = Control (2);
+				Zone2ActionLabel = control2.Label;
+				Zone2CanControl = control2.Enabled;
+				}
+			if (_zoneCount >= 3)
+				{
+				ZoneReading zone3 = _reading?.Zones.FirstOrDefault (x => x.Zone == 3);
+				Zone3Status = zone3 == null ? "Unknown" : (fresh ? "" : "Last reported: ") + zone3.Status;
+				// Zone 3 history volume and date are updated together by UpdateHistory.
+				Zone3Details = zone3?.TimeLeft (DateTimeOffset.UtcNow, fresh) ?? "Time left unavailable";
+				Zone3Alarms = zone3?.Alarms ?? "Alarms unknown";
+				Zone3CanStart = fresh && zone3?.Active == false && !_pending[2];
+				ZoneControl control3 = Control (3);
+				Zone3ActionLabel = control3.Label;
+				Zone3CanControl = control3.Enabled;
+				}
 			RenderProgramming (fresh);
 			}
 		}
@@ -944,7 +984,7 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 		{
 		lock (_sync)
 			{
-			if (_disposed || zone is < 1 or > 3)
+			if (_disposed || zone < 1 || zone > _zoneCount)
 				return;
 			var old = _usage[zone - 1];
 			if (success && record != null && (old == null || record.CloudTimestamp >= old.CloudTimestamp))
@@ -979,8 +1019,10 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 		lock (_sync)
 			{
 			Zone1Plans = plans[0];
-			Zone2Plans = plans[1];
-			Zone3Plans = plans[2];
+			if (_zoneCount >= 2)
+				Zone2Plans = plans[1];
+			if (_zoneCount >= 3)
+				Zone3Plans = plans[2];
 			}
 		}
 
@@ -988,6 +1030,8 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 		_reading?.IsFresh (DateTimeOffset.UtcNow, _liveUpdates) == true, _available, _pending[zone - 1], _pendingStart[zone - 1]);
 	private void OperateZone (int zone)
 		{
+		if (zone > _zoneCount)
+			return;
 		ZoneControl control;
 		int minutes;
 		lock (_sync)

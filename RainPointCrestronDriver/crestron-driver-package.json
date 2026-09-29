@@ -1,0 +1,13 @@
+{
+  "standardVersion": "1.0",
+  "packageType": "CrestronHomeDriver",
+  "driverPlatform": "Crestron Home",
+  "payloadType": "pkg",
+  "payloadFile": "RainPointCrestronDriver.pkg",
+  "containsManagedDllPayload": false,
+  "packageId": "CrestronHomeDriver.RainPoint.Irrigation",
+  "packageVersion": "1.1.0",
+  "displayName": "RainPoint Irrigation",
+  "vendor": "RainPoint",
+  "driverCategory": "Irrigation"
+}

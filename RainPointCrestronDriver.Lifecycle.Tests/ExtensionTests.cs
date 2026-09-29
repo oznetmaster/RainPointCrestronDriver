@@ -120,7 +120,7 @@ public sealed partial class ExtensionTests
 		XDocument xml = XDocument.Load (Path.Combine (Data, "UiDefinitions", "UiDefinition.xml"));
 		var main = xml.Descendants ("layout").Single (x => (string)x.Attribute ("id") == "MainPage");
 		Assert.That (main.Attribute ("title")?.Value, Is.EqualTo ("{hubLabel}"));
-		Assert.That (main.Attribute ("subtitle")?.Value, Is.EqualTo ("^TimerModel"));
+		Assert.That (main.Attribute ("subtitle")?.Value, Is.EqualTo ("{deviceModel}"));
 		foreach (int zone in new[] { 1, 2, 3 })
 			{
 			Assert.That (xml.Descendants ().Single (x => (string)x.Attribute ("id") == "Zone" + zone + "Row").Attribute ("label")?.Value, Is.EqualTo ("{zone" + zone + "Name}"));

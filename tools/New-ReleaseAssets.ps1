@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Neil Colvin. MIT with Commons Clause; see LICENSE.
 [CmdletBinding()]
-param([string]$Version='1.0.0', [string]$OutputDirectory='artifacts/release')
+param([string]$Version='1.1.0', [string]$OutputDirectory='artifacts/release')
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 Push-Location $root
@@ -18,14 +18,22 @@ try{
     $nupkg=Join-Path $output "CrestronHomeDriver.RainPoint.Irrigation.$Version.nupkg"
     $archive=[IO.Compression.ZipFile]::OpenRead($nupkg)
     try{
-        foreach($name in @('RainPointCrestronDriver.pkg','RainPointCrestronDriver.json','README.md','RELEASE-NOTES.md','LICENSE','THIRD-PARTY-NOTICES.md')){
+        foreach($name in @('RainPointCrestronDriver.pkg','crestron-driver-package.json','RainPointCrestronDriver.json','README.md','RELEASE-NOTES.md','LICENSE','THIRD-PARTY-NOTICES.md')){
             if(!$archive.GetEntry($name)){throw "Missing package entry: $name"}
         }
+        $rootPayloads=@($archive.Entries|Where-Object { $_.FullName -notmatch '[/\\]' -and $_.FullName.EndsWith('.pkg') })
+        if($rootPayloads.Count -ne 1){throw 'Expected exactly one root driver payload.'}
+        $reader=[IO.StreamReader]::new($archive.GetEntry('crestron-driver-package.json').Open())
+        try{$delivery=$reader.ReadToEnd()|ConvertFrom-Json}finally{$reader.Dispose()}
+        $sourceDelivery=Get-Content 'RainPointCrestronDriver/crestron-driver-package.json' -Raw|ConvertFrom-Json
+        foreach($property in $sourceDelivery.PSObject.Properties){if($delivery.($property.Name) -cne $property.Value){throw "Packaged delivery manifest mismatch: $($property.Name)"}}
+        if($delivery.packageVersion -cne $Version -or $delivery.payloadFile -cne $rootPayloads[0].FullName){throw 'Delivery manifest payload/version mismatch.'}
         $specs=@($archive.Entries|Where-Object FullName -Like '*.nuspec')
         if($specs.Count -ne 1){throw 'Expected one NuGet manifest.'}
         $reader=[IO.StreamReader]::new($specs[0].Open())
         try{$spec=[xml]$reader.ReadToEnd()}finally{$reader.Dispose()}
         if($spec.package.metadata.id -cne 'CrestronHomeDriver.RainPoint.Irrigation' -or $spec.package.metadata.version -cne $Version){throw 'NuGet identity mismatch.'}
+        foreach($tag in @('crestron','crestron-home','driver','pkg')){if($tag -cnotin ($spec.package.metadata.tags -split '[; ]+')){throw "Missing packaged feed tag: $tag"}}
         if($spec.package.metadata.packageTypes.packageType.name -cne 'CrestronHomeDriver'){throw 'Unexpected NuGet package type.'}
         if($spec.SelectNodes('//*[local-name()="dependency"]').Count){throw 'Driver archive must have no NuGet runtime dependency declarations.'}
         $entry=$archive.GetEntry('RainPointCrestronDriver.pkg').Open()

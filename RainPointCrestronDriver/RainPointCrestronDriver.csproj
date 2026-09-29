@@ -5,11 +5,11 @@
     <IsPackable>true</IsPackable><IncludeBuildOutput>false</IncludeBuildOutput>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking><PackageType>CrestronHomeDriver</PackageType>
     <PackageId>CrestronHomeDriver.RainPoint.Irrigation</PackageId>
-    <Description>Crestron Home irrigation extension for RainPoint Home three-zone timers, with timed watering, live feedback and Home programming.</Description>
+    <Description>Installable .pkg delivery package for the Crestron Home irrigation extension for RainPoint Home RF timers, with timed watering, live feedback and Home programming.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile><PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/oznetmaster/RainPointCrestronDriver</RepositoryUrl><RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/oznetmaster/RainPointCrestronDriver</PackageProjectUrl>
-    <PackageTags>crestron;crestron-home;rainpoint;irrigation;driver</PackageTags>
+    <PackageTags>crestron;crestron-home;rainpoint;irrigation;driver;pkg</PackageTags>
     <BuildForTests Condition="'$(BuildForTests)' == ''">true</BuildForTests>
     <MergeDependenciesContinueOnError>false</MergeDependenciesContinueOnError>
     <PackageDriverContinueOnError>false</PackageDriverContinueOnError>
@@ -25,6 +25,7 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <EmbeddedResource Include="RainPointCrestronDriver.json" />
     <None Include="../README.md;../LICENSE;../CHANGELOG.md;../RELEASE-NOTES.md;../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
+    <None Include="crestron-driver-package.json" Pack="true" PackagePath="/" />
     <None Include="RainPointCrestronDriver.json" Pack="true" PackagePath="/" />
     <None Include="$(PackageDriverPkgPath)" Pack="true" PackagePath="/" Condition="'$(PackageDriverPkgPath)' != ''" />
   </ItemGroup>

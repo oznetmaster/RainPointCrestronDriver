@@ -304,6 +304,32 @@ public sealed class ControllerTests
 		Assert.That (calls, Has.Count.EqualTo (3));
 		}
 
+	[TestCase ("HTV145FRF", 1), TestCase ("HTV245FRF", 2), TestCase ("HTV345FRF", 3)]
+	public async Task VariantStopAllAndDirectCommandsRespectExistingZones (string model, int count)
+		{
+		await _controller.ShutdownAsync ();
+		var identity = new TimerIdentity (100, 42, "Garden", model: model);
+		_connection = new FakeConnection { Identity = identity };
+		_controller = new IrrigationController (() => _connection, () => Now);
+		await _controller.ConfigureAsync (Settings ());
+		_connection.Emit (new TimerReading (identity, 1, true, Now,
+			Enumerable.Range (1, count).Select (zone => new ZoneReading (zone, false, "Idle", 0, TimeSpan.Zero, "None")).ToArray (), "Normal", "-70"));
+		for (int zone = 1; zone <= count; zone++)
+			await _controller.StartAsync (identity.ControllerId, zone, 1);
+		Assert.That (_connection.Commands, Has.Count.EqualTo (count));
+		_connection.Commands.Clear ();
+		_connection.FailFirstStop = true;
+		await _controller.StopAllAsync (identity.ControllerId);
+		Assert.That (_connection.Commands, Is.EqualTo (Enumerable.Range (1, count).Select (zone => "stop:42:" + zone)));
+		_connection.Commands.Clear ();
+		for (int zone = count + 1; zone <= 3; zone++)
+			{
+			await _controller.StartAsync (identity.ControllerId, zone, 1);
+			await _controller.StopAsync (identity.ControllerId, zone);
+			}
+		Assert.That (_connection.Commands, Is.Empty);
+		}
+
 	private sealed class FakeConnection : IRainPointConnection
 		{
 #pragma warning disable CS0067
@@ -321,6 +347,7 @@ public sealed class ControllerTests
 #pragma warning restore CS0067
 		internal readonly List<string> Commands = [];
 		internal readonly TaskCompletionSource<bool> Started = new (TaskCreationOptions.RunContinuationsAsynchronously);
+		internal TimerIdentity Identity = Timer;
 		internal int ConnectCount;
 		internal bool EarlyHistory;
 		internal void EmitHistory () => HistoryChanged?.Invoke (Timer.Address, 1, new RecordedUsage ("fixture", Now, 1.4m), true);
@@ -337,7 +364,7 @@ public sealed class ControllerTests
 			ConnectCount++;
 			if (EarlyHistory)
 				EmitHistory ();
-			return Task.FromResult<IReadOnlyList<TimerIdentity>> (new[] { Timer });
+			return Task.FromResult<IReadOnlyList<TimerIdentity>> (new[] { Identity });
 			}
 		public async Task StartAsync (int address, int zone, int minutes, CancellationToken token)
 			{

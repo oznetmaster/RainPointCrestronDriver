@@ -8,13 +8,13 @@ All default tests are offline; no credentials, cloud login or valve operations a
 | RainPointCrestronDriver.Lifecycle.Tests | net10.0 desktop SDK | Real Crestron entity definitions, dynamic child registration, UI property/command/translation bindings and XML schema |
 | Package category in the SDK project | net10.0 loading merged net472 driver | Attributed JSON round trip through synthetic HTTP responses and embedded MQTT trust anchor |
 
-Development dependencies: NUnit **5.0.0**, NUnit3TestAdapter **6.3.0**, Microsoft.NET.Test.Sdk **18.10.1**, NUnit.Analyzers **4.15.0**. Visual Studio Test Explorer discovers the portable and desktop SDK suites through the NUnit adapter. Runtime dependencies are the released RainPointClient **1.1.0** NuGet package and Crestron.DeviceDrivers.DevKit **29.0.10**; the portable net472 projects use Microsoft.NETFramework.ReferenceAssemblies **1.0.3** for compilation.
+Development dependencies: NUnit **5.0.0**, NUnit3TestAdapter **6.3.0**, Microsoft.NET.Test.Sdk **18.10.1**, NUnit.Analyzers **4.15.0**. Visual Studio Test Explorer discovers the portable and desktop SDK suites through the NUnit adapter. Runtime dependencies are the released RainPointClient **1.2.0** NuGet package and Crestron.DeviceDrivers.DevKit **29.0.10**; the portable net472 projects use Microsoft.NETFramework.ReferenceAssemblies **1.0.3** for compilation.
 
 The SDK desktop harness restores its compatibility assembly from the public Crestron.DeviceDrivers.ManifestUtil **29.0.10** package. Its bytes match the previously used local SDK assembly. No private desktop assembly, credential or CI secret is required. This dependency is confined to the test host; the production merge excludes Crestron-provided assemblies.
 
 Run `tools/Build-Package.ps1` for the merged assembly tests and package inspection. The script sets `RAINPOINT_PACKAGED_ASSEMBLY` only while the package tests run. Without that explicit path, package-specific tests are skipped; regular tests need no package build. Results are written under ignored `artifacts/tests` when using the packaging script.
 
-The checked-in `ExtensionsSchemaDefinition.xsd` is the Crestron v3 schema already used in TeslaPowerwallCrestronDriver. Its source URL is retained in [docs/UI.md](../docs/UI.md). UI tests validate every layout destination, label translation and bound entity property or command, as well as the XML schema.
+The checked-in `ExtensionsSchemaDefinition.xsd` is the Crestron v3 schema. Its source URL is retained in [docs/UI.md](../docs/UI.md). UI tests validate every layout destination, label translation and bound entity property or command, as well as the XML schema.
 
 Client processor tests use the existing `CrestronLibraryTests/RainPointClient.ProcessorTests.slnx` solution and its NUnit workflow adapter. The current run passed all 1,380 processor cases and removed its temporary test instance. Those shared workflow edits remain local. Driver installation, programming and live results are recorded below and in DEVELOPMENT-HISTORY.md. Watering fixtures remain explicit and duration-bounded.
 
@@ -44,3 +44,7 @@ Use the explicit `OneMinuteZone1CompletesWithCustomEventAndDatedUsage` fixture o
 App zone renaming and disabled-plan creation/deletion reached the shared-account driver without manual refresh or reload. The test plan and temporary Home programming were removed. All three zones finished idle. The separate client workflow passed 1,380 processor cases plus 2,760 desktop cases and cleaned up its temporary instance.
 
 Detailed dated evidence and earlier preview versions are retained in [DEVELOPMENT-HISTORY.md](../DEVELOPMENT-HISTORY.md). Hardware credentials and private journals are excluded from the repository. The release preparation itself does not initiate watering or run installed automation automatically.
+
+## Version 1.1.0 validation
+
+The coordinated update passes 96 portable cases on each of net472 and net10.0, 47 SDK/UI cases and five merged-package checks (244 total). New cases cover one/two/three-zone command boundaries, Stop all after a failed stop, discovery and model replacement, plan reads, schema-valid UI variants, absent-zone programmable entities and aggregate state transitions. The client adds reference-capture and protocol tests; no physical HTV145FRF/HTV245FRF or installed-driver operation is claimed.

@@ -54,12 +54,20 @@ public sealed class DriverSettings
 		&& AreaCode == other.AreaCode && HomeId == other.HomeId && HubId == other.HubId;
 	}
 
-public sealed class TimerIdentity (long hubId, int address, string name, string hubName = null, IReadOnlyList<string> zoneNames = null)
+public sealed class TimerIdentity (long hubId, int address, string name, string hubName = null, IReadOnlyList<string> zoneNames = null, string model = "HTV345FRF")
 	{
+	public string Model { get; } = model;
+	public int ZoneCount { get; } = model?.ToUpperInvariant () switch
+		{
+			"HTV145FRF" => 1,
+			"HTV245FRF" => 2,
+			"HTV345FRF" => 3,
+			_ => throw new ArgumentException ("Unsupported timer model.", nameof (model))
+		};
 	public string HubName { get; } = hubName ?? string.Empty;
 	private readonly string[] _zoneNames = Enumerable.Range (1, 3).Select (zone =>
 		zoneNames != null && zone <= zoneNames.Count && !string.IsNullOrWhiteSpace (zoneNames[zone - 1]) ? zoneNames[zone - 1] : "Zone " + zone).ToArray ();
-	public string ZoneName (int zone) => zone is >= 1 and <= 3 ? _zoneNames[zone - 1] : throw new ArgumentOutOfRangeException (nameof (zone));
+	public string ZoneName (int zone) => zone >= 1 && zone <= ZoneCount ? _zoneNames[zone - 1] : throw new ArgumentOutOfRangeException (nameof (zone));
 	public long HubId { get; } = hubId;
 	public int Address { get; } = address;
 	public string Name { get; } = string.IsNullOrWhiteSpace (name) ? "RainPoint timer " + address : name;
@@ -139,7 +147,7 @@ public sealed class TimerReading (TimerIdentity timer, long revision, bool? hubO
 			}
 		int[] active = Zones.Where (z => z.Active == true).Select (z => z.Zone).ToArray ();
 		string running = active.Length == 1 ? "Zone " + active[0] + " active" : "Zones " + string.Join (", ", active) + " active";
-		bool complete = Zones.Count == 3 && Zones.All (z => z.Active.HasValue);
+		bool complete = Enumerable.Range (1, Timer.ZoneCount).All (zone => Zones.Count (z => z.Zone == zone && z.Active.HasValue) == 1);
 		return active.Length > 0 ? running + (complete ? "" : " / others unknown") : complete ? "All zones idle" : "Status unknown";
 		}
 	}

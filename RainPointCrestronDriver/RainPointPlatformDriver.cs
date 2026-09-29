@@ -109,7 +109,7 @@ public sealed class RainPointPlatformDriver : ReflectedAttributeDriverEntity
 					}
 				entity.UpdateIdentity (identity);
 				devices[identity.ControllerId] = new PlatformManagedDevice (DeviceUxCategory.IrrigationSystem,
-					identity.Name, "RainPoint", "HTV345FRF", identity.ControllerId);
+					identity.Name, "RainPoint", identity.Model, identity.ControllerId);
 				}
 			if (added.Count > 0)
 				{

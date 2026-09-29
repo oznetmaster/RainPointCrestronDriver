@@ -316,7 +316,7 @@ internal sealed partial class RainPointTimerEntity
 			}
 		if (fresh || _programAvailable.HasValue)
 			Transition (ref _programAvailable, fresh, StatusRestored, StatusUnavailable);
-		ZoneReading[] zones = Enumerable.Range (1, 3).Select (z => _reading?.Zones.FirstOrDefault (x => x.Zone == z)).ToArray ();
+		ZoneReading[] zones = Enumerable.Range (1, _zoneCount).Select (z => _reading?.Zones.FirstOrDefault (x => x.Zone == z)).ToArray ();
 		bool complete = fresh && zones.All (z => z?.Active.HasValue == true);
 		bool? active = !fresh ? null : zones.Any (z => z?.Active == true) ? true : complete ? false : null;
 		ActivityState = active == true ? "Active" : active == false ? "Idle" : "Unknown";
@@ -334,25 +334,31 @@ internal sealed partial class RainPointTimerEntity
 		Transition (ref _programZone[0], active1, Zone1Started, Zone1Stopped);
 		Transition (ref _programAlarm[0], alarm1, Zone1AlarmRaised, Zone1AlarmCleared);
 
-		ZoneReading zone2 = zones[1];
-		bool? active2 = fresh ? zone2?.Active : null;
-		bool? alarm2 = fresh && zone2?.AlarmCode.HasValue == true ? zone2.AlarmCode != 0 : (bool?)null;
-		Zone2State = active2 == true ? "Active" : active2 == false ? "Idle" : "Unknown";
-		Zone2RemainingSeconds = zone2?.RemainingSeconds (DateTimeOffset.UtcNow, fresh) ?? -1;
-		Zone2LastUsageLitres = zone2?.UsageLitres is decimal usage2 ? (double)usage2 : -1;
-		Zone2AlarmState = alarm2 == true ? "Active" : alarm2 == false ? "Clear" : "Unknown";
-		Transition (ref _programZone[1], active2, Zone2Started, Zone2Stopped);
-		Transition (ref _programAlarm[1], alarm2, Zone2AlarmRaised, Zone2AlarmCleared);
+		if (_zoneCount >= 2)
+			{
+			ZoneReading zone2 = zones[1];
+			bool? active2 = fresh ? zone2?.Active : null;
+			bool? alarm2 = fresh && zone2?.AlarmCode.HasValue == true ? zone2.AlarmCode != 0 : (bool?)null;
+			Zone2State = active2 == true ? "Active" : active2 == false ? "Idle" : "Unknown";
+			Zone2RemainingSeconds = zone2?.RemainingSeconds (DateTimeOffset.UtcNow, fresh) ?? -1;
+			Zone2LastUsageLitres = zone2?.UsageLitres is decimal usage2 ? (double)usage2 : -1;
+			Zone2AlarmState = alarm2 == true ? "Active" : alarm2 == false ? "Clear" : "Unknown";
+			Transition (ref _programZone[1], active2, Zone2Started, Zone2Stopped);
+			Transition (ref _programAlarm[1], alarm2, Zone2AlarmRaised, Zone2AlarmCleared);
+			}
 
-		ZoneReading zone3 = zones[2];
-		bool? active3 = fresh ? zone3?.Active : null;
-		bool? alarm3 = fresh && zone3?.AlarmCode.HasValue == true ? zone3.AlarmCode != 0 : (bool?)null;
-		Zone3State = active3 == true ? "Active" : active3 == false ? "Idle" : "Unknown";
-		Zone3RemainingSeconds = zone3?.RemainingSeconds (DateTimeOffset.UtcNow, fresh) ?? -1;
-		Zone3LastUsageLitres = zone3?.UsageLitres is decimal usage3 ? (double)usage3 : -1;
-		Zone3AlarmState = alarm3 == true ? "Active" : alarm3 == false ? "Clear" : "Unknown";
-		Transition (ref _programZone[2], active3, Zone3Started, Zone3Stopped);
-		Transition (ref _programAlarm[2], alarm3, Zone3AlarmRaised, Zone3AlarmCleared);
+		if (_zoneCount >= 3)
+			{
+			ZoneReading zone3 = zones[2];
+			bool? active3 = fresh ? zone3?.Active : null;
+			bool? alarm3 = fresh && zone3?.AlarmCode.HasValue == true ? zone3.AlarmCode != 0 : (bool?)null;
+			Zone3State = active3 == true ? "Active" : active3 == false ? "Idle" : "Unknown";
+			Zone3RemainingSeconds = zone3?.RemainingSeconds (DateTimeOffset.UtcNow, fresh) ?? -1;
+			Zone3LastUsageLitres = zone3?.UsageLitres is decimal usage3 ? (double)usage3 : -1;
+			Zone3AlarmState = alarm3 == true ? "Active" : alarm3 == false ? "Clear" : "Unknown";
+			Transition (ref _programZone[2], active3, Zone3Started, Zone3Stopped);
+			Transition (ref _programAlarm[2], alarm3, Zone3AlarmRaised, Zone3AlarmCleared);
+			}
 
 		foreach (EventHandler handler in events)
 			handler?.Invoke (this, EventArgs.Empty);

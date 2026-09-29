@@ -2,7 +2,7 @@
 
 ## 28 September 2026 — first local implementation
 
-Created `RainPointCrestronDriver.slnx` and a local Git repository. Used OverkizCrestronDriver's platform/child-entity structure and the existing Tesla Powerwall extension packaging implementation as models. Production references the public RainPointClient 1.0.1 NuGet package.
+Created `RainPointCrestronDriver.slnx` and a local Git repository. Production references the public RainPointClient 1.0.1 NuGet package.
 
 Implemented one irrigation extension per supported timer on the configured hub. Six pages cover the overview, each of three zones, saved-plan summaries and diagnostics. Every zone supports explicit timed start and stop. Unknown readings remain unknown; command acceptance does not change zone state. Session replacement cancels old work and drains active operations. Stop-all attempts all three zones independently without transferring remaining commands to a replacement connection.
 

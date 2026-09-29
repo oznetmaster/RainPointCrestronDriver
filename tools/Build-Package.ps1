@@ -21,7 +21,7 @@ try {
         if ($manifests.Count -ne 1) { throw 'Expected exactly one package manifest.' }
         $reader = [IO.StreamReader]::new($manifests[0].Open())
         try { $manifest = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
-        if ([version]$manifest.driverVersion -ne [version]'1.0.0.17') { throw 'Unexpected release driver version.' }
+        if ([version]$manifest.driverVersion -ne [version]'1.1.0.18') { throw 'Unexpected release driver version.' }
         foreach ($required in @('UiDefinitions/UiDefinition.xml', 'Translations/en-US.json')) {
             if (-not @($archive.Entries | Where-Object { $_.FullName.Replace('\','/').EndsWith($required, [StringComparison]::OrdinalIgnoreCase) }).Count) { throw "Missing $required" }
         }

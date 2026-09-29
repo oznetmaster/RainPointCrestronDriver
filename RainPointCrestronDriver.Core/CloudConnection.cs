@@ -35,7 +35,7 @@ public sealed class CloudConnection : IRainPointConnection
 	private void RequestAllHistory ()
 		{
 		foreach (var timer in _timers)
-			for (int zone = 1; zone <= 3; zone++)
+			for (int zone = 1; zone <= timer.ZoneCount; zone++)
 				RequestHistory (timer.Address, zone, false);
 		}
 	private RainPointHub _hub;
@@ -99,8 +99,8 @@ public sealed class CloudConnection : IRainPointConnection
 	internal void InitializeMetadata (RainPointHub hub)
 		{
 		_hub = hub;
-		_timers = hub.Devices.Where (d => d.SupportedZoneCount == 3)
-			.Select (d => new TimerIdentity (hub.Id, d.Address, d.Name, hub.Name, d.ZoneNames)).ToArray ();
+		_timers = hub.Devices.Where (d => d.SupportedZoneCount.HasValue)
+			.Select (d => new TimerIdentity (hub.Id, d.Address, d.Name, hub.Name, d.ZoneNames, d.Model)).ToArray ();
 		if (_timers.Count == 0 || _timers.Select (t => t.Address).Distinct ().Count () != _timers.Count)
 			{
 			throw new InvalidOperationException ("No uniquely addressed supported timers were discovered.");
@@ -121,8 +121,8 @@ public sealed class CloudConnection : IRainPointConnection
 		// Metadata updates preserve the commissioned timer identities. Pairing changes require rediscovery.
 		var timers = _timers.Select (timer =>
 			{
-				var device = fresh.Devices.Single (d => d.Address == timer.Address && d.SupportedZoneCount == 3);
-				return new TimerIdentity (fresh.Id, device.Address, device.Name, fresh.Name, device.ZoneNames);
+				var device = fresh.Devices.Single (d => d.Address == timer.Address && d.SupportedZoneCount == timer.ZoneCount && string.Equals (d.Model, timer.Model, StringComparison.OrdinalIgnoreCase));
+				return new TimerIdentity (fresh.Id, device.Address, device.Name, fresh.Name, device.ZoneNames, device.Model);
 			}).ToArray ();
 		token.ThrowIfCancellationRequested ();
 		_hub = fresh;
@@ -182,7 +182,7 @@ public sealed class CloudConnection : IRainPointConnection
 				{
 				contact = observation.ReceivedAt;
 				}
-			var zones = Enumerable.Range (1, 3).Select (number =>
+			var zones = Enumerable.Range (1, timer.ZoneCount).Select (number =>
 				{
 					RainPointZoneStatus z = status?.Zones.FirstOrDefault (x => x.Zone == number);
 					string mode = z?.WorkMode switch
@@ -218,8 +218,9 @@ public sealed class CloudConnection : IRainPointConnection
 		}
 	public async Task<string[]> ReadPlansAsync (int address, CancellationToken token)
 		{
-		var result = new string[3];
-		for (int zone = 1; zone <= 3; zone++)
+		TimerIdentity timer = _timers.Single (item => item.Address == address);
+		string[] result = new string[timer.ZoneCount];
+		for (int zone = 1; zone <= timer.ZoneCount; zone++)
 			{
 			RainPointScheduleSnapshot snapshot = await _client.GetTimerSchedulesAsync (_hub, address, zone, token).ConfigureAwait (false);
 			result[zone - 1] = snapshot.Availability != TimerReadingAvailability.Decoded ? "Plans unavailable"
