@@ -22,10 +22,12 @@ jobs:
         with:
           dotnet-version: 10.0.401
       - uses: NuGet/setup-nuget@v2
+      - name: Install packaging tools
+        shell: pwsh
+        run: ./CrestronHomeNUnit/tools/InstallCiTools.ps1
       - name: Build and execute packaged core tests twice
         shell: pwsh
         run: |
-          ./CrestronHomeNUnit/tools/InstallCiTools.ps1
           dotnet build driver/RainPointCrestronDriver.ProcessorTests/RainPointCrestronDriver.ProcessorTests.csproj -c Release -p:BuildProcessorTestPackages=true -p:ReleaseVersion=1.0.0 -p:DeployAfterBuild=false "-p:ManifestUtilExe=$env:MANIFEST_UTIL_EXE"
           if ($LASTEXITCODE) { throw 'Package build failed.' }
           dotnet build CrestronHomeNUnit/ProcessorTestPackage.Validation -c Release
