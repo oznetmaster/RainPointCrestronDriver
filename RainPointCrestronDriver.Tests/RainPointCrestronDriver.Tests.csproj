@@ -5,4 +5,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" PrivateAssets="all" />
     <PackageReference Include="NUnit.Analyzers" Version="4.15.0" PrivateAssets="all" /><ProjectReference Include="../RainPointCrestronDriver.Core/RainPointCrestronDriver.Core.csproj" /></ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'"><PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" /></ItemGroup>
+  <PropertyGroup>
+    <WarningsAsErrors>$(WarningsAsErrors);CS4014</WarningsAsErrors>
+  </PropertyGroup>
 </Project>

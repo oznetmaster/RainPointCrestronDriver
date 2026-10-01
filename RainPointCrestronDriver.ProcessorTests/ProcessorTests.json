@@ -1,0 +1,12 @@
+{
+  "Name": "RainPointCrestronDriver Tests",
+  "Port": 0,
+  "Suites": [
+    {
+      "Id": "unit",
+      "Name": "RainPointCrestronDriver Tests - Unit Tests",
+      "FilterXml": "<filter><namespace re='1'>^RainPointCrestronDriver[.]Tests($|[.])</namespace></filter>",
+      "ManualOnly": false
+    }
+  ]
+}

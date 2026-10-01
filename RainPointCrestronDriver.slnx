@@ -4,4 +4,6 @@
   <Project Path="RainPointCrestronDriver.Tests/RainPointCrestronDriver.Tests.csproj" />
   <Project Path="RainPointCrestronDriver.Lifecycle.Tests/RainPointCrestronDriver.Lifecycle.Tests.csproj" />
   <Project Path="RainPointCrestronDriver.Automation.Tests/RainPointCrestronDriver.Automation.Tests.csproj" />
+  <Project Path="RainPointCrestronDriver.ProcessorTests/RainPointCrestronDriver.ProcessorTests.csproj" />
+  <Project Path="RainPointCrestronDriver.WorkflowTests/RainPointCrestronDriver.WorkflowTests.csproj" />
 </Solution>

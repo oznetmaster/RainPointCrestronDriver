@@ -14,4 +14,7 @@
     <None Include="../RainPointCrestronDriver/IncludeInPkg/**/*" Link="DriverTestData/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../RainPointCrestronDriver/RainPointCrestronDriver.json" Link="DriverTestData/DriverDefinition.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <PropertyGroup>
+    <WarningsAsErrors>$(WarningsAsErrors);CS4014</WarningsAsErrors>
+  </PropertyGroup>
 </Project>

@@ -1,0 +1,42 @@
+name: Processor test package
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: driver
+      - uses: actions/checkout@v4
+        with:
+          repository: oznetmaster/CrestronHomeNUnit
+          ref: ce916780ebafc78306fff11e614f3eef20ca2092
+          path: CrestronHomeNUnit
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: NuGet/setup-nuget@v2
+      - name: Build and execute packaged core tests twice
+        shell: pwsh
+        run: |
+          ./CrestronHomeNUnit/tools/InstallCiTools.ps1
+          dotnet build driver/RainPointCrestronDriver.ProcessorTests/RainPointCrestronDriver.ProcessorTests.csproj -c Release -p:BuildProcessorTestPackages=true -p:ReleaseVersion=1.0.0 -p:DeployAfterBuild=false "-p:ManifestUtilExe=$env:MANIFEST_UTIL_EXE"
+          if ($LASTEXITCODE) { throw 'Package build failed.' }
+          dotnet build CrestronHomeNUnit/ProcessorTestPackage.Validation -c Release
+          if ($LASTEXITCODE) { throw 'Validator build failed.' }
+          [IO.Compression.ZipFile]::ExtractToDirectory('driver/RainPointCrestronDriver.ProcessorTests/bin/Release/net472/RainPointCrestronDriver.ProcessorTests.pkg','package')
+          ./CrestronHomeNUnit/ProcessorTestPackage.Validation/bin/Release/net472/ProcessorTestPackage.Validation.exe package/RainPointCrestronDriver.ProcessorTests.dll results 0 --run-twice
+          if ($LASTEXITCODE) { throw 'Packaged core tests failed.' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: processor-tests
+          path: |
+            driver/RainPointCrestronDriver.ProcessorTests/bin/Release/net472/*.pkg
+            results/**

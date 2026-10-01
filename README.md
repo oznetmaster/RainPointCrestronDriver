@@ -90,3 +90,6 @@ Crestron SDK example definitions retain their original notices. RainPointClient 
 RainPoint, HomGar and Crestron are trademarks of their respective owners and identify compatibility only. This independent, unofficial project is not affiliated with, endorsed or approved by those owners. Software is provided **AS IS**, without warranty.
 
 Copyright (c) 2026 Neil Colvin. [MIT License with Commons Clause](https://github.com/oznetmaster/RainPointCrestronDriver/blob/main/LICENSE), including the installation-service exception used by the other driver repositories.
+## NUnit 5 test tooling
+
+All maintained NUnit suites use the official NUnit 5.0.0 framework. Async exception assertions are awaited, and discarded-task warnings fail test builds. Processor test packages use CrestronHomeNUnit SDK 2.2.0; workflow and Android suites, where provided, use the released 2.2.0 adapter. Tests remain available in Visual Studio, VS Code and the command line. Live and manual tests still require their documented devices and permissions. This is a test-tooling update; the published product version and runtime behavior are unchanged.
