@@ -10,7 +10,7 @@
         }
       ],
       "results": [
-        "TestResults/**/*.trx"
+        "artifacts/tests/**/*.trx"
       ]
     },
     "tests-tests-build-and-inspect-release-assets": {
