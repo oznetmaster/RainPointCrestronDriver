@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "tasks": {
+    "tests-tests-run-offline-tests": {
+      "commands": [
+        {
+          "executable": "pwsh",
+          "script": "build/steps/tests-tests-run-offline-tests.ps1",
+          "shell": "pwsh"
+        }
+      ],
+      "results": [
+        "TestResults/**/*.trx"
+      ]
+    },
+    "tests-tests-build-and-inspect-release-assets": {
+      "commands": [
+        {
+          "executable": "pwsh",
+          "script": "build/steps/tests-tests-build-and-inspect-release-assets.ps1",
+          "shell": "pwsh"
+        }
+      ]
+    },
+    "workflow-discovery-discover-verify-offline-test-explorer-discovery": {
+      "commands": [
+        {
+          "executable": "pwsh",
+          "script": "build/steps/workflow-discovery-discover-verify-offline-test-explorer-discovery.ps1",
+          "shell": "pwsh"
+        }
+      ]
+    }
+  }
+}

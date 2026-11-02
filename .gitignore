@@ -7,3 +7,7 @@ TestResults/
 *.Local.props
 *.Local.targets
 .local/
+
+# Shared Cake build downloads and invocation receipts
+/artifacts/build-components/
+/artifacts/build-automation/
