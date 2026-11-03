@@ -19,6 +19,7 @@
     <LocalNetFxRuntimeDir Condition="'$(LocalNetFxRuntimeDir)' == ''">C:\Windows\Microsoft.NET\Framework64\v4.0.30319</LocalNetFxRuntimeDir>
     <ManifestUtilExe Condition="'$(ManifestUtilExe)' == ''">$(UserProfile)\.nuget\packages\crestron.devicedrivers.manifestutil\29.0.10\tools\net8.0\any\ManifestUtil.exe</ManifestUtilExe>
   </PropertyGroup>
+  <Import Project="DriverVersion.props" />
   <ItemGroup>
     <ProjectReference Include="../RainPointCrestronDriver.Core/RainPointCrestronDriver.Core.csproj" />
     <PackageReference Include="Crestron.DeviceDrivers.DevKit" Version="29.0.10" />
@@ -29,6 +30,9 @@
     <None Include="RainPointCrestronDriver.json" Pack="true" PackagePath="/" />
     <None Include="$(PackageDriverPkgPath)" Pack="true" PackagePath="/" Condition="'$(PackageDriverPkgPath)' != ''" />
   </ItemGroup>
+  <Target Name="BumpDriverVersion" BeforeTargets="BeforeBuild" Condition="'$(BuildForTests)' != 'true' And '$(DesignTimeBuild)' != 'true'">
+    <Exec Command="pwsh -NoProfile -NonInteractive -File &quot;$(MSBuildProjectDirectory)/BumpDriverVersion.ps1&quot; -ManifestPath &quot;$(DriverManifestFile)&quot; -Configuration &quot;$(Configuration)&quot; -ReleaseVersion &quot;$(DriverReleaseVersion)&quot;" />
+  </Target>
 	<Target Name="MergeDependencies" AfterTargets="Build" Condition="'$(BuildForTests)' != 'true'">
         <PropertyGroup>
             <IlRepackToolDirectory Condition="'$(IlRepackToolDirectory)' == ''">$(UserProfile)\.dotnet\tools\.store\dotnet-ilrepack\2.0.45\dotnet-ilrepack\2.0.45\tools\net8.0\any</IlRepackToolDirectory>

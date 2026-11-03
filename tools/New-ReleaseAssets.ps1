@@ -1,15 +1,16 @@
 # Copyright (c) 2026 Neil Colvin. MIT with Commons Clause; see LICENSE.
 [CmdletBinding()]
-param([string]$Version='1.1.1', [string]$OutputDirectory='artifacts/release')
+param([string]$Version, [string]$OutputDirectory='artifacts/release')
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
+if (!$Version) { $Version = (& "$PSScriptRoot/Get-DriverReleaseVersion.ps1" -ManifestPath "$root/RainPointCrestronDriver/RainPointCrestronDriver.json").PackageVersion }
 Push-Location $root
 try{
     & ./tools/Test-ReleaseMetadata.ps1 -Version $Version
     $output=[IO.Path]::GetFullPath($OutputDirectory, $root)
     if(Test-Path $output){if(@(Get-ChildItem $output -Force).Count){throw 'Choose an empty output directory; existing release assets are never overwritten.'}}
     New-Item -ItemType Directory -Path $output -Force|Out-Null
-    & ./tools/Build-Package.ps1
+    & ./tools/Build-Package.ps1 -Version $Version
     $package=Join-Path $root 'RainPointCrestronDriver/bin/Release/net472/RainPointCrestronDriver.pkg'
     dotnet pack RainPointCrestronDriver/RainPointCrestronDriver.csproj -c Release --no-build -o $output "-p:PackageVersion=$Version" "-p:PackageDriverPkgPath=$package"
     if($LASTEXITCODE -ne 0){throw 'NuGet packaging failed.'}

@@ -1,8 +1,9 @@
 # Copyright (c) 2026 Neil Colvin. MIT with Commons Clause; see LICENSE.
 [CmdletBinding()]
-param([string]$Version='1.1.1', [switch]$RequireTag)
+param([string]$Version, [switch]$RequireTag)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
+if (!$Version) { $Version = (& "$PSScriptRoot/Get-DriverReleaseVersion.ps1" -ManifestPath "$root/RainPointCrestronDriver/RainPointCrestronDriver.json").PackageVersion }
 if($Version -cnotmatch '^\d+\.\d+\.\d+$'){throw 'Use major.minor.patch.'}
 $props=[xml](Get-Content "$root/Directory.Build.props" -Raw)
 if($props.Project.PropertyGroup.Version -cne $Version){throw 'Source version mismatch.'}

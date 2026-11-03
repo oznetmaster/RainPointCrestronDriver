@@ -1,0 +1,5 @@
+<!-- Copyright (c) 2026 Neil Colvin. MIT License with Commons Clause; see LICENSE. -->
+<Project>
+  <PropertyGroup><DriverManifestFile Condition="'$(DriverManifestFile)' == ''">$(MSBuildThisFileDirectory)RainPointCrestronDriver.json</DriverManifestFile></PropertyGroup>
+  <Import Project="../build/shared/driver-versioning/DriverVersion.props" />
+</Project>
