@@ -123,6 +123,10 @@ jobs:
             artifacts/release/LICENSE
             artifacts/release/SHA256SUMS.txt
           if-no-files-found: error
+      - name: Verify public driver artifact contents
+        shell: pwsh
+        run: |
+          ./tools/Assert-PublicDriverArtifacts.ps1 -Path @("artifacts/release")
       - name: Exchange GitHub identity for a short-lived NuGet credential
         uses: NuGet/login@v1
         id: nuget-login
