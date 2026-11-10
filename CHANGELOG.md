@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.4](https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.4) - 2026-11-10
+
+- Use RainPointClient 1.2.2.
+- Extend the existing processor test package to run the SDK entity lifecycle and programming regressions on net472/Mono as well as the portable tests.
+- No new watering behavior or configuration migration is introduced.
+
 ## [1.1.1](https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.1) — 2026-09-29
 
 - Documentation updates. No functional changes.

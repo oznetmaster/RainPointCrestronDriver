@@ -32,7 +32,7 @@ public sealed partial class ExtensionTests
 	public void ProgrammableDefinitionsHaveSdkBindingsAndTranslations ()
 		{
 		var definition = _timer.GetState ().Definition;
-		var labels = JsonSerializer.Deserialize<Dictionary<string, string>> (File.ReadAllText (Path.Combine (Data, "Translations", "en-US.json")));
+		var labels = JsonSerializer.Deserialize<Dictionary<string, string>> (File.ReadAllText (Path.Combine (Data, "translations", "en-US.json")));
 		Type type = typeof (RainPointTimerEntity);
 		var events = type.GetEvents ().Where (e => e.GetCustomAttribute<EntityEventMetadataAttribute> ()?.Programmable == true).ToArray ();
 		Assert.That (events, Has.Length.EqualTo (18));

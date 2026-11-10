@@ -81,7 +81,9 @@ internal sealed partial class RainPointTimerEntity : ReflectedAttributeDriverEnt
 			// Hidden UI controls still need valid bindings, but no programmable property.
 			if (definition.PropertyMetadata.TryGetValue (id, out var metadata) && metadata.ExtensionUiProperty)
 				AddProperty (this, id, new CachedPropertyInstance (definition.Properties[id], new DriverEntityPropertyMetadata (false, true))
-					{ Value = state.PropertyValues[id] });
+					{
+					Value = state.PropertyValues[id]
+					});
 			}
 		foreach (string id in definition.Commands.Keys.Where (AbsentZone).ToArray ())
 			if (!id.StartsWith ("operateZone", StringComparison.Ordinal) && !id.StartsWith ("setZone", StringComparison.Ordinal))

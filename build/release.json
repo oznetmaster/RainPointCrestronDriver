@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "name": "RainPointCrestronDriver",
+  "versionFile": "build/ReleaseVersion.props",
+  "versionXPath": "/Project/PropertyGroup/Version",
+  "notesFile": "release-notes/v{version}.md",
+  "packages": [
+    {
+      "frameworks": [],
+      "project": "RainPointCrestronDriver/RainPointCrestronDriver.csproj",
+      "id": "CrestronHomeDriver.RainPoint.Irrigation",
+      "symbols": false
+    }
+  ],
+  "applications": [],
+  "documents": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "rawLibraries": false,
+  "libraryArchive": false
+}

@@ -1,14 +1,18 @@
 # RainPointCrestronDriver
 
-**Version 1.1.1** of a Crestron Home irrigation extension, using the released [RainPointClient 1.2.1 NuGet package](https://www.nuget.org/packages/RainPointClient/1.2.1).
+## Current GitHub/NuGet release: 1.1.4
+
+[Download 1.1.4](https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.4) or use the matching NuGet driver distribution. This patch includes the audited dependency and lifecycle corrections; see [release notes](RELEASE-NOTES.md). Existing configuration and pairing formats are retained. Crestron catalog/submission versions below retain their separate attribution.
+
+**Version 1.1.4** of a Crestron Home irrigation extension, using the released [RainPointClient 1.2.2 NuGet package](https://www.nuget.org/packages/RainPointClient/1.2.2).
 
 One configured RainPoint Home / Smart+ hub shares a cloud session and MQTT observer. Each recognized **HTV145FRF one-zone, HTV245FRF two-zone or HTV345FRF three-zone timer gets its own room-page tile (for example, Garden or Lawn)**. Supported hubs are HWG023WBRF and HWG023WBRF-V2. Timer identity uses the hub ID and RF address, so changing its display name does not change its identity.
 
 ## Installation
 
-Download `RainPointCrestronDriver.pkg` from the [v1.1.1 release](https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.1), or extract it from NuGet package `CrestronHomeDriver.RainPoint.Irrigation` version `1.1.1`. This is an installable driver archive, not a .NET application reference. The package manifest reports **1.1.001.0019**, retaining the build sequence used during preview testing.
+Download `RainPointCrestronDriver.pkg` from the [v1.1.4 release](https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.4), or extract it from NuGet package `CrestronHomeDriver.RainPoint.Irrigation` version `1.1.4`. This is an installable driver archive, not a .NET application reference. The package manifest reports **1.1.004.0000**.
 
-The recommended way to download and install this driver is the [Crestron Home Driver Feed Installer](https://github.com/oznetmaster/Crestron-Home-Driver-Feed-Installer). Select the NuGet.org feed, search for `CrestronHomeDriver.RainPoint.Irrigation`, inspect version 1.1.1 or newer, select your processor and upload the package. Then complete steps 3–6 below in Crestron Home Setup.
+The recommended way to download and install this driver is the [Crestron Home Driver Feed Installer](https://github.com/oznetmaster/Crestron-Home-Driver-Feed-Installer). Select the NuGet.org feed, search for `CrestronHomeDriver.RainPoint.Irrigation`, inspect version 1.1.4 or newer, select your processor and upload the package. Then complete steps 3–6 below in Crestron Home Setup.
 
 The NuGet distribution follows the [Crestron Home Driver NuGet Publishing Standard v1](https://github.com/oznetmaster/Crestron-Home-Driver-Feed-Installer/blob/main/docs/standard/crestron-home-driver-nuget-publishing-standard-v1.md), including its root `crestron-driver-package.json` manifest. This community packaging standard is not an official Crestron specification. For manual installation, follow all the steps below. The GitHub **Source code (zip)** and **Source code (tar.gz)** downloads are repository snapshots, not installable driver packages.
 
@@ -71,7 +75,7 @@ dotnet test RainPointCrestronDriver.Tests -c Release
 dotnet test RainPointCrestronDriver.Lifecycle.Tests -c Release --filter "TestCategory!=Package"
 ```
 
-The solution restores RainPointClient 1.2.1 from NuGet.org. A sibling client checkout is not required.
+The solution restores RainPointClient 1.2.2 from NuGet.org. A sibling client checkout is not required.
 
 Production driver targets **net472** with **C# 14**. The shared controller and portable tests also target **net10.0**. Follow the root `.editorconfig`.
 

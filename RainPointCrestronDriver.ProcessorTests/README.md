@@ -1,5 +1,9 @@
 # RainPoint driver processor tests
 
+## Pending source update
+
+The next test-package build includes the portable tests and the SDK entity lifecycle/programming tests on net472/Mono. The latter also continue to run in the net10.0 workstation harness. Packaged UI and schema fixtures are loaded beside the test assembly; transferred private inputs use a separate directory. Installed automation and live watering tests remain separate, explicitly selected suites. The released 1.0.0 artifacts described below are unchanged.
+
 ## NUnit 5 test package
 
 Test package **1.0.0** uses **NUnit 5.0.0**. It is independent of the product version. [Download package](https://github.com/oznetmaster/RainPointCrestronDriver/releases/download/v1.1.1/RainPointCrestronDriver.ProcessorTests-1.0.0.pkg), [documentation](https://github.com/oznetmaster/RainPointCrestronDriver/releases/download/v1.1.1/RainPointCrestronDriver.ProcessorTests-1.0.0-Documentation.zip), [validation](https://github.com/oznetmaster/RainPointCrestronDriver/releases/download/v1.1.1/RainPointCrestronDriver.ProcessorTests-1.0.0.validation.json), [exact source revisions](https://github.com/oznetmaster/RainPointCrestronDriver/releases/download/v1.1.1/RainPointCrestronDriver.ProcessorTests-1.0.0.sources.json), and [SHA-256 checksums](https://github.com/oznetmaster/RainPointCrestronDriver/releases/download/v1.1.1/RainPointCrestronDriver.ProcessorTests-1.0.0-SHA256SUMS.txt) are attached to the existing product release. No product binary or NuGet version changed for this test update.

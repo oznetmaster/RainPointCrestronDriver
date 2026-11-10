@@ -25,6 +25,9 @@ using RainPoint.CrestronDriver.Core;
 namespace RainPointCrestronDriver.Lifecycle.Tests;
 
 [TestFixture]
+#if NETFRAMEWORK
+[Category ("Processor")]
+#endif
 public sealed partial class ExtensionTests
 	{
 	private DriverLogger _logger;
@@ -32,10 +35,14 @@ public sealed partial class ExtensionTests
 	private DriverControllerCreationArgs _args;
 	private DriverImplementationResources _resources;
 	private RainPointTimerEntity _timer;
-	private static string Data => Path.Combine (TestContext.CurrentContext.TestDirectory, "DriverTestData");
+	private static string TestRoot => TestContext.CurrentContext.TestDirectory;
+	private static string Data => Path.Combine (TestRoot, "DriverTestData");
 	[SetUp]
 	public void SetUp ()
 		{
+#if NETFRAMEWORK
+		if (Type.GetType ("Mono.Runtime") == null) Assert.Ignore ("Run native SDK tests in the desktop harness or on the processor.");
+#endif
 		_logger = new DriverLogger ("rainpoint-offline");
 		_controller = new IrrigationController (() => new FakeConnection ());
 		_args = new DriverControllerCreationArgs ("rainpoint-offline", Data, _logger.AppLogger, null);
@@ -65,9 +72,9 @@ public sealed partial class ExtensionTests
 		{
 		var errors = new List<string> ();
 		var settings = new XmlReaderSettings { ValidationType = ValidationType.Schema, XmlResolver = null };
-		settings.Schemas.Add (null, Path.Combine (TestContext.CurrentContext.TestDirectory, "ExtensionsSchemaDefinition.xsd"));
+		settings.Schemas.Add (null, Path.Combine (TestRoot, "ExtensionsSchemaDefinition.xsd"));
 		settings.ValidationEventHandler += (_, e) => errors.Add (e.Message);
-		using var reader = XmlReader.Create (Path.Combine (Data, "UiDefinitions", "UiDefinition.xml"), settings);
+		using var reader = XmlReader.Create (Path.Combine (Data, "uidefinitions", "UiDefinition.xml"), settings);
 		while (reader.Read ())
 			{
 			}
@@ -76,10 +83,10 @@ public sealed partial class ExtensionTests
 	[Test]
 	public void AllBindingsResolveToSdkPropertiesCommandsAndPages ()
 		{
-		XDocument xml = XDocument.Load (Path.Combine (Data, "UiDefinitions", "UiDefinition.xml"));
+		XDocument xml = XDocument.Load (Path.Combine (Data, "uidefinitions", "UiDefinition.xml"));
 		var state = _timer.GetState ();
 		string[] layouts = xml.Descendants ("layout").Select (x => (string)x.Attribute ("id")).ToArray ();
-		var labels = JsonSerializer.Deserialize<Dictionary<string, string>> (File.ReadAllText (Path.Combine (Data, "Translations", "en-US.json")));
+		var labels = JsonSerializer.Deserialize<Dictionary<string, string>> (File.ReadAllText (Path.Combine (Data, "translations", "en-US.json")));
 		foreach (XAttribute attribute in xml.Descendants ().Attributes ())
 			{
 			foreach (Match match in Regex.Matches (attribute.Value, @"\{([^}]+)\}"))
@@ -117,7 +124,7 @@ public sealed partial class ExtensionTests
 		Assert.That (_timer.DeviceLabel, Is.EqualTo ("Renamed timer"));
 		_timer.UpdateIdentity (new TimerIdentity (1, 2, "Timer", null, new[] { "", "Beds" }));
 		Assert.That (new[] { _timer.Zone1Name, _timer.Zone2Name, _timer.Zone3Name }, Is.EqualTo (new[] { "Zone 1", "Beds", "Zone 3" }));
-		XDocument xml = XDocument.Load (Path.Combine (Data, "UiDefinitions", "UiDefinition.xml"));
+		XDocument xml = XDocument.Load (Path.Combine (Data, "uidefinitions", "UiDefinition.xml"));
 		var main = xml.Descendants ("layout").Single (x => (string)x.Attribute ("id") == "MainPage");
 		Assert.That (main.Attribute ("title")?.Value, Is.EqualTo ("{hubLabel}"));
 		Assert.That (main.Attribute ("subtitle")?.Value, Is.EqualTo ("{deviceModel}"));
@@ -240,7 +247,7 @@ public sealed partial class ExtensionTests
 	[Test]
 	public void ZonePagesHaveOneActionAndNoManualStatusRefresh ()
 		{
-		XDocument xml = XDocument.Load (Path.Combine (Data, "UiDefinitions", "UiDefinition.xml"));
+		XDocument xml = XDocument.Load (Path.Combine (Data, "uidefinitions", "UiDefinition.xml"));
 		foreach (int zone in Enumerable.Range (1, 3))
 			{
 			XElement page = xml.Descendants ("layout").Single (x => (string)x.Attribute ("id") == "Zone" + zone + "Page");
@@ -296,7 +303,7 @@ public sealed partial class ExtensionTests
 		Report (3, false);
 		SetMinutes (10);
 		Assert.That (Minutes (), Is.EqualTo (10));
-		XDocument xml = XDocument.Load (Path.Combine (Data, "UiDefinitions", "UiDefinition.xml"));
+		XDocument xml = XDocument.Load (Path.Combine (Data, "uidefinitions", "UiDefinition.xml"));
 		Assert.That ((string)xml.Descendants ("raiselowerwithtext").Single (x => (string)x.Attribute ("id") == "Zone" + zone + "Duration").Attribute ("enabled"), Is.EqualTo ("{zone" + zone + "CanStart}"));
 		}
 	[Test]

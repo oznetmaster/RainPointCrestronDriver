@@ -9,7 +9,9 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
+
 using NUnit.Framework;
+
 using RainPoint.CrestronDriver;
 using RainPoint.CrestronDriver.Core;
 
@@ -23,13 +25,15 @@ public sealed partial class ExtensionTests
 		_timer.Dispose ();
 		var identity = new TimerIdentity (1, 2, "Timer", "Garden", new[] { "Lawn", "Beds", "Tap" }, model);
 		_timer = new RainPointTimerEntity (identity, _controller, _args, _resources);
-		string path = Path.Combine (Data, "UiDefinitions/UiDefinition.xml");
+		string path = Path.Combine (Data, "uidefinitions/UiDefinition.xml");
 		var errors = new List<string> ();
 		var settings = new XmlReaderSettings { ValidationType = ValidationType.Schema, XmlResolver = null };
-		settings.Schemas.Add (null, Path.Combine (TestContext.CurrentContext.TestDirectory, "ExtensionsSchemaDefinition.xsd"));
+		settings.Schemas.Add (null, Path.Combine (TestRoot, "ExtensionsSchemaDefinition.xsd"));
 		settings.ValidationEventHandler += (_, e) => errors.Add (e.Message);
 		using (var reader = XmlReader.Create (path, settings))
-			while (reader.Read ()) { }
+			while (reader.Read ())
+				{
+				}
 		Assert.That (errors, Is.Empty);
 		var xml = XDocument.Load (path);
 		var state = _timer.GetState ();

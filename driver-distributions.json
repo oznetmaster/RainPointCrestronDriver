@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "product": "RainPoint Irrigation",
+  "driverId": "7bf47283-5dea-4542-8ec2-4ddc0a0d3014",
+  "publicVersionFormat": "MAJOR.MINOR.PATCH",
+  "packageVersionFormat": "MAJOR.MINOR.PATCH.REVISION",
+  "distributions": [
+    {
+      "id": "submission-validation-1.1.003.0021",
+      "channel": "test",
+      "driverVersion": "1.1.003.0021",
+      "status": "reserved",
+      "purpose": "Previously allocated private submission-validation candidate; submission remains suspended for timer repair",
+      "recordedUtc": "2026-11-10T00:00:00Z"
+    },
+    {
+      "id": "public-1.1.4",
+      "channel": "public",
+      "publicVersion": "1.1.4",
+      "driverVersion": "1.1.004.0000",
+      "status": "prepared",
+      "purpose": "Audited dependency and driver lifecycle patch",
+      "url": "https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.4"
+    }
+  ],
+  "nugetDocumentationPatches": []
+}

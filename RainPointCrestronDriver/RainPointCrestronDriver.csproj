@@ -72,4 +72,5 @@
     <CodeAnalysisTreatWarningsAsErrors Condition="'$(Configuration)' == 'Debug'">true</CodeAnalysisTreatWarningsAsErrors>
   </PropertyGroup>
   <Import Project="../tools/Documentation.targets" />
+  <PropertyGroup Condition="'$(PackageReleaseNotesFile)' != '' And Exists('$(PackageReleaseNotesFile)')"><PackageReleaseNotes>$([System.IO.File]::ReadAllText('$(PackageReleaseNotesFile)'))</PackageReleaseNotes></PropertyGroup>
 </Project>

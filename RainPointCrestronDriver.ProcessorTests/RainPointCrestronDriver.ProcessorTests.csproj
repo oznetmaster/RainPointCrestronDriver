@@ -18,6 +18,10 @@
   <Import Project="$(ProcessorTestSdkRoot)\ProcessorTestPackage\ProcessorTestPackage.props" Condition="'$(BuildProcessorTestPackages)' == 'true' And Exists('$(ProcessorTestSdkRoot)\ProcessorTestPackage\ProcessorTestPackage.props')" />
   <ItemGroup Condition="'$(BuildProcessorTestPackages)' == 'true'">
     <ProjectReference Include="..\RainPointCrestronDriver.Tests\RainPointCrestronDriver.Tests.csproj" />
+<ProjectReference Include="..\RainPointCrestronDriver.Lifecycle.Tests\RainPointCrestronDriver.Lifecycle.Tests.csproj" />
+<ProcessorTestData Include="..\RainPointCrestronDriver\IncludeInPkg\**\*" TargetPath="DriverTestData\%(RecursiveDir)%(Filename)%(Extension)" />
+<ProcessorTestData Include="..\RainPointCrestronDriver\RainPointCrestronDriver.json" TargetPath="DriverTestData\DriverDefinition.json" />
+<ProcessorTestData Include="..\RainPointCrestronDriver.Lifecycle.Tests\ExtensionsSchemaDefinition.xsd" TargetPath="ExtensionsSchemaDefinition.xsd" />
   </ItemGroup>
   <Import Project="$(ProcessorTestSdkRoot)\ProcessorTestPackage\ProcessorTestPackage.targets" Condition="'$(BuildProcessorTestPackages)' == 'true' And Exists('$(ProcessorTestSdkRoot)\ProcessorTestPackage\ProcessorTestPackage.targets')" />
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

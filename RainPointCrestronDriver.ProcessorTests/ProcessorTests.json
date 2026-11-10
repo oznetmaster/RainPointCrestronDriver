@@ -7,6 +7,12 @@
       "Name": "RainPointCrestronDriver Tests - Unit Tests",
       "FilterXml": "<filter><namespace re='1'>^RainPointCrestronDriver[.]Tests($|[.])</namespace></filter>",
       "ManualOnly": false
+    },
+    {
+      "Id": "lifecycle",
+      "Name": "RainPoint native SDK lifecycle tests",
+      "FilterXml": "<filter><and><namespace re=\"1\">^RainPointCrestronDriver[.]Lifecycle[.]Tests($|[.])</namespace><not><cat>Package</cat></not></and></filter>",
+      "ManualOnly": false
     }
   ]
 }

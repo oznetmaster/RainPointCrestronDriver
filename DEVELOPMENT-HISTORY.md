@@ -1,5 +1,13 @@
 # Development history
 
+## Dependency and synchronization audit - 2026-11-10
+
+- Addressed the source audit findings and updated the public library/client references listed in the Unreleased changelog.
+- Passed 143 workstation Debug tests, 143 workstation Release tests, and 143 selected native net472/Mono processor tests, with no failures or skips in the final runs. Workstation counts are executions across the portable and SDK harness projects, not a claim of unique test names.
+- Processor validation used an isolated temporary V2 Utility host on the lab processor with fake transports/credentials. No installed product driver was updated, no reboot was performed and no real-device control or live account test was run. Removed the test host and its package payload, released its lease and verified the original device configuration and all 24 protected files: 23 byte-identical, including all three pairing files; only the system device-ID allocator advanced.
+- Verified whitespace formatting on the inventoried production/support sources and changed C# files. Preserved existing nullable/XML policy; this is not a new full nullable migration.
+- No product version, public release, submitted Crestron artifact or saved configuration format was changed.
+
 ## 28 September 2026 — first local implementation
 
 Created `RainPointCrestronDriver.slnx` and a local Git repository. Production references the public RainPointClient 1.0.1 NuGet package.

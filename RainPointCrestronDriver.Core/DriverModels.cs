@@ -104,13 +104,16 @@ public sealed class TimerIdentity (long hubId, int address, string name, string 
 	/// <summary>
 	/// Gets the recognized model's zone count, from one through three.
 	/// </summary>
-	public int ZoneCount { get; } = model?.ToUpperInvariant () switch
+	public int ZoneCount
 		{
-			"HTV145FRF" => 1,
-			"HTV245FRF" => 2,
-			"HTV345FRF" => 3,
-			_ => throw new ArgumentException ("Unsupported timer model.", nameof (model))
-		};
+		get;
+		} = model?.ToUpperInvariant () switch
+			{
+				"HTV145FRF" => 1,
+				"HTV245FRF" => 2,
+				"HTV345FRF" => 3,
+				_ => throw new ArgumentException ("Unsupported timer model.", nameof (model))
+				};
 	/// <summary>
 	/// Gets the assigned hub name, or an empty string if none was supplied.
 	/// </summary>
