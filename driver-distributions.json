@@ -18,9 +18,17 @@
       "channel": "public",
       "publicVersion": "1.1.4",
       "driverVersion": "1.1.004.0000",
-      "status": "prepared",
       "purpose": "Audited dependency and driver lifecycle patch",
-      "url": "https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.4"
+      "url": "https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.4",
+      "packageSha256": "2b0bf032d051a68207e85ef4ee5dae260265a3065477eb9583467d25dbc37a75",
+      "releaseSourceCommit": "6ccb7d71e85c3933853c49d397e8238325840c17",
+      "status": "released",
+      "date": "2026-11-10",
+      "publicationRun": 42821293018,
+      "manifestSha256": "59463d6d53112dc9306f26141fd34e9aab6006168a2c9fea3b7433f125301a84",
+      "nugetUrl": "https://www.nuget.org/packages/CrestronHomeDriver.RainPoint.Irrigation/1.1.4",
+      "nugetPayloadSha256": "5674266c96c135a6ffe7882949c0d99d6c72c7fb47a2283d4ffe138ff545e84b",
+      "publishedUtc": "2026-11-10T13:20:40.6121108+00:00"
     }
   ],
   "nugetDocumentationPatches": []
