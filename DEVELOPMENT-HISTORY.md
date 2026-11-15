@@ -1,5 +1,16 @@
 # Development history
 
+## Initial-submission live validation - 2026-11-15
+
+- Tested the released 1.1.5 runtime through native Android Home on an installed HTV345FRF: two Start/Stop cycles for each of three zones and two Stop all cycles (16 control inputs), twelve duration inputs, and repeated plan/diagnostic navigation. Input to confirmed backend watering feedback was 1.164-7.580 seconds. Zones 1/2 had water connected, while zone 3 was dry; reported volumes are not independently calibrated flow measurements.
+- A separate one-minute-capped dry-zone check captured the native room tile idle, zone 3 active, then idle again. All zones and saved duration selections were restored. The submission-only package retains byte-identical public runtime/UI payloads.
+- Verified the actual catalogue and five-field configuration-wizard contract through DevTools, including required/optional flags, masked password, five rejected invalid values, commissioning, explicit-home/automatic-hub selection, and persisted V2 reload settings with a stable child identity. These are API/behavior checks, not native installer-dialog screenshots. Unrelated configuration and three protected pairing files were preserved.
+- Preserved failed cases: clearing both selectors was ambiguous because the support account has two homes; closely spaced reconfiguration failed readiness, and a separate client probe observed provider sign-in error 9993 with RetryAfter 120 seconds. The original driver exception did not include a numeric code, so not every earlier failure is attributed conclusively to that restriction. A reload verifier initially queried a transiently absent property; read-only completion verified the original reload without repeating it.
+- An additional timed-start test through Home's configuration REST bridge returned an error. Inspected bridge source omits numeric extension arguments; offline SDK29 checks confirmed the native integer dispatch succeeds, missing arguments fail, and string-valued integers are not accepted directly. This failed test call was retained and not replayed; it is not evidence that the driver typed programming path failed. The native tile check used the already-tested no-argument control path instead.
+- Full driver removal was verified in native Home, with no new persistent error-log exceptions and unrelated configuration/pairings preserved. Thirteen additional software-only checks cover isolation of substitute timers and connections; they do not certify two physical timers.
+- Two hub-only Wi-Fi interruptions were restored. The longer trial exposed backend offline and recovery; retrospective cloud connectivity-time correlation was 0.516836 seconds before the first backend-ready sample. This does not establish native offline/recovery timing or the full power/network-outage predicates. Earlier 24-hour read-only continuity remains attributed to its original candidate and source-impact assessment, not a new 24-hour run of 1.1.5.
+
+
 ## Quiet-session continuity patch - 2026-11-15
 
 - Recover the periodic cloud-contact repair from private submission candidate commit 5b2570d97c8b327a5f2452486783867560895a5c into maintained public 1.1.5. Public 1.1.4 did not contain this repair or its regression tests.

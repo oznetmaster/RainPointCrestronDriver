@@ -65,6 +65,8 @@ The driver reads status at startup and reconciles cloud status every 30 seconds 
 
 Reconfiguration cancels and drains old work before closing the old connection. Queued commands cannot transfer to a replacement session. Startup, discovery, reconnect, build and tests do not initiate watering.
 
+If an account exposes more than one home, enter the intended Home ID explicitly; Hub ID may be omitted when that home has exactly one supported hub. Avoid repeatedly reconfiguring or reconnecting to bypass a provider sign-in restriction. A bounded live check observed RainPoint error 9993 with a 120-second retry delay after a closely spaced second login. Honor the delay supplied by the service before retrying. This is not a universal minimum login interval or a watering-command pacing rule.
+
 ## Build and tests
 
 Open `RainPointCrestronDriver.slnx` in Visual Studio with .NET SDK **10.0.401**, or:
@@ -83,7 +85,11 @@ See [tests/README.md](https://github.com/oznetmaster/RainPointCrestronDriver/blo
 
 ## Validation
 
-The 1.1.5 regression scope includes portable controller/transport tests, SDK entity and programming tests, and separate merged-package checks. Current counts and runtime-specific results are recorded in [development history](DEVELOPMENT-HISTORY.md). The earlier live evidence below retains its original scope; it is not a new 1.1.5 all-zone acceptance result. A one-minute zone-1 Home automation run verified device-reported countdown, automatic stop, the programmable stopped event and dated usage. App renames and disabled-plan creation/deletion updated the connected driver automatically through the shared support account. The test plan and temporary Home programming were removed. All-zone command paths have offline coverage; the automated live watering run used only zone 1. Phone/touch-panel appearance and device-reported results remain distinct from independent physical observation.
+The 1.1.5 regression scope includes portable controller/transport tests, SDK entity and programming tests, and separate merged-package checks. Current counts and runtime-specific results are recorded in [development history](DEVELOPMENT-HISTORY.md). On 15 November 2026, the installed HTV345FRF completed two native Home Start/Stop cycles per zone and two Stop all cycles: 16 watering-control inputs. Twelve duration adjustments and repeated plan/diagnostic navigation also passed. Zones 1/2 had water connected; zone 3 was dry. A separate one-minute-capped zone-3 check verified the actual room tile changing from idle to active and back. Durations were restored and all zones confirmed idle. These are device-reported and native-UI observations, not independent physical flow measurements.
+
+DevTools checks verified catalogue/configuration contracts, invalid-value rejection, commissioning, reconfiguration and persisted V2 reload state. Final removal was checked in native Home; unrelated configuration and pairing files were preserved. API contract checks do not establish native installer-dialog appearance. Only one physical timer was available: software isolation tests do not replace a two-timer hardware check. Hub-only Wi-Fi interruptions and attributed earlier endurance evidence remain distinct from a complete current-version initial-submission test plan.
+
+Earlier one-minute zone-1 Home automation verified countdown, natural completion, the programmable stopped event and dated usage. App renames and disabled-plan creation/deletion updated the connected driver automatically through the shared support account; temporary plans and programming were removed. Those observations retain their original version/date and scope.
 
 See [DEVELOPMENT-HISTORY.md](https://github.com/oznetmaster/RainPointCrestronDriver/blob/main/DEVELOPMENT-HISTORY.md) for validation and [docs/UI.md](https://github.com/oznetmaster/RainPointCrestronDriver/blob/main/docs/UI.md) for the page design and initial scope.
 
