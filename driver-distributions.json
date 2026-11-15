@@ -9,8 +9,8 @@
       "id": "submission-validation-1.1.003.0021",
       "channel": "test",
       "driverVersion": "1.1.003.0021",
-      "status": "reserved",
-      "purpose": "Previously allocated private submission-validation candidate; submission remains suspended for timer repair",
+      "status": "superseded",
+      "purpose": "Earlier private submission-validation candidate; original evidence retained with its version and scope. Resumed initial submission targets public 1.1.5.",
       "recordedUtc": "2026-11-10T00:00:00Z"
     },
     {
@@ -35,9 +35,18 @@
       "channel": "public",
       "publicVersion": "1.1.5",
       "driverVersion": "1.1.005.0000",
-      "status": "reserved",
       "purpose": "Recover quiet-session status reconciliation and its regression coverage before the initial Crestron submission",
-      "recordedUtc": "2026-11-15T05:48:07.7238382+00:00"
+      "recordedUtc": "2026-11-15T05:48:07.7238382+00:00",
+      "publicationRun": 43686274735,
+      "manifestSha256": "87f199a214cc9114ffc5d08d2e7c0847724a181207737e27ed800005e610a52d",
+      "nugetUrl": "https://www.nuget.org/packages/CrestronHomeDriver.RainPoint.Irrigation/1.1.5",
+      "publishedUtc": "2026-11-15T06:38:30.0954157+00:00",
+      "packageSha256": "3e2d51be420bb69be8151d000ff8cac7452ad6c6a23d75fcde399e75b49321f8",
+      "releaseSourceCommit": "0dda3b1fa7a29b858cf71ae7f3957697d56e3cd4",
+      "url": "https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.5",
+      "date": "2026-11-15",
+      "status": "released",
+      "nugetPayloadSha256": "673488e21327f98dfafc166eb24394daa7474364e312346e01c78c45d8c0c9b2"
     }
   ],
   "nugetDocumentationPatches": []
