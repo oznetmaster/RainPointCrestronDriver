@@ -20,7 +20,7 @@ foreach($tag in @('crestron','crestron-home','driver','pkg')){if($tag -cnotin $t
 foreach($file in @('README.md','RELEASE-NOTES.md','CHANGELOG.md','LICENSE','THIRD-PARTY-NOTICES.md','docs/PROGRAMMING.md','tests/README.md')){
     if(!(Test-Path "$root/$file")){throw "Missing $file"}
 }
-if(!(Get-Content "$root/RELEASE-NOTES.md" -Raw).StartsWith("# RainPointCrestronDriver v$Version")){throw 'Release notes mismatch.'}
+if(!(Get-Content "$root/RELEASE-NOTES.md" -Raw).StartsWith("# RainPointCrestronDriver $Version")){throw 'Release notes mismatch.'}
 if((Get-Content "$root/CHANGELOG.md" -Raw) -notmatch ('(?m)^##[ \t]+(?:\[v?' + [regex]::Escape($Version) + '\](?:\([^\s)]+\))?|v?' + [regex]::Escape($Version) + ')(?=\s|$)')){throw 'Changelog mismatch.'}
 if($RequireTag){
     $head=git -C $root rev-parse HEAD

@@ -1,4 +1,4 @@
-# RainPointCrestronDriver v1.1.5
+# RainPointCrestronDriver 1.1.5
 
 This patch keeps successful cloud-contact evidence current when a timer is quiet or its MQTT observer renews. Status is reconciled every 30 seconds alongside push updates. Failed reads do not refresh contact, the existing 90-second fallback limit is retained, and expired authentication still disables control.
 
