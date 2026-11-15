@@ -106,7 +106,7 @@ public sealed class CloudConnection : IRainPointConnection
 		var hubs = await _client.GetHubsAsync (home.Id, token).ConfigureAwait (false);
 		_hub = Selection.Unique (hubs.Where (h => h.Model == "HWG023WBRF" || h.Model == "HWG023WBRF-V2"), h => h.Id, settings.HubId, "hub");
 		InitializeMetadata (_hub);
-		_monitor = new RainPointMonitor (_client, _hub, new RainPointMonitorOptions { PollWhilePushConnected = false });
+		_monitor = new RainPointMonitor (_client, _hub, CreateMonitorOptions ());
 		_monitor.StatusReceived += OnStatus;
 		StartMetadata (token);
 		_history = new UsageHistoryWorker (ReadLastUsageAsync, (address, zone, record, success) => HistoryChanged?.Invoke (address, zone, record, success), token);
@@ -233,7 +233,14 @@ public sealed class CloudConnection : IRainPointConnection
 		catch (OperationCanceledException) when (token.IsCancellationRequested) { }
 		}
 
-	private void OnStatus (object sender, RainPointStatusUpdate update)
+	/// <summary>Keep successful cloud contact recent during quiet MQTT sessions and observer renewal.</summary>
+	/// <returns>Periodic reconciliation alongside push observation, without changing freshness limits.</returns>
+	internal static RainPointMonitorOptions CreateMonitorOptions () => new () { PollWhilePushConnected = true };
+
+	/// <summary>Publishes the accepted monitor observation with its actual successful read or push contact time.</summary>
+	/// <param name="sender">The monitor that accepted this observation.</param>
+	/// <param name="update">The accepted typed status and contact metadata.</param>
+	internal void OnStatus (object sender, RainPointStatusUpdate update)
 		{
 		foreach (TimerIdentity timer in _timers)
 			{

@@ -1,19 +1,17 @@
-# RainPointCrestronDriver 1.1.4
+# RainPointCrestronDriver v1.1.5
 
-This patch corrects the dependency and lifecycle issues described below.
+This patch keeps successful cloud-contact evidence current when a timer is quiet or its MQTT observer renews. Status is reconciled every 30 seconds alongside push updates. Failed reads do not refresh contact, the existing 90-second fallback limit is retained, and expired authentication still disables control.
 
-- Use RainPointClient 1.2.2.
-- Extend the existing processor test package to run the SDK entity lifecycle and programming regressions on net472/Mono as well as the portable tests.
-- No new watering behavior or configuration migration is introduced.
+The repair was previously exercised in the private 1.1.3 submission-validation candidate but had not reached public 1.1.4. This release brings it into the maintained source with regression tests. RainPointClient remains at 1.2.2.
 
 ## Installation
 
-Use the driver package from [GitHub](https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.4) or the matching NuGet distribution. Import the package, then update the existing driver in Home Setup or Configure Pro. Importing alone does not update the running instance. Existing pairing and configuration formats are retained; removal and re-add is not a routine update step.
+Download the installable package from the [GitHub release](https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.5) or matching NuGet distribution. Upload it, then update the existing RainPoint driver in Crestron Home Setup or Configure Pro. Uploading alone does not update the running driver. Public version 1.1.5 reports driver version 1.1.005.0000.
 
-Version 1.1.4 is above the private 1.1.3 submission-validation candidates; it does not claim that the suspended Crestron submission or physical watering acceptance tests have completed.
+Existing account settings, room assignments and configuration formats are retained. Routine updates do not require removing and re-adding the driver. This patch does not change watering command behavior or initiate watering at startup.
 
-## Validation
+## Validation and submission status
 
-Passed 143 workstation Debug and 143 Release test executions, plus 143 native net472/Mono processor tests. Processor validation used fake transports and synthetic credentials; no new physical-device acceptance or endurance run is claimed. Existing processor configuration and all pairing files were preserved. See [development history](DEVELOPMENT-HISTORY.md) for provenance and limits.
+See [development history](DEVELOPMENT-HISTORY.md) for the exact workstation, merged-package and processor results. Synthetic regression tests are distinct from physical watering acceptance. The retained earlier endurance and live evidence keeps its original version, date and scope.
 
-This GitHub/NuGet release does not replace any submitted Crestron package. Submission-specific PDFs and correspondence are excluded from public artifacts.
+The initial Crestron submission is being completed separately using this public release. This release does not claim that the submission has been signed, sent or accepted. Submission-only help PDFs and correspondence are excluded from public artifacts.

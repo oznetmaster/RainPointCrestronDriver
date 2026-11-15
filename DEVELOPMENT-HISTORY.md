@@ -1,5 +1,14 @@
 # Development history
 
+## Quiet-session continuity patch - 2026-11-15
+
+- Recover the periodic cloud-contact repair from private submission candidate commit 5b2570d97c8b327a5f2452486783867560895a5c into maintained public 1.1.5. Public 1.1.4 did not contain this repair or its regression tests.
+- Reconcile cloud status every 30 seconds alongside MQTT push. Successful reads retain their actual contact time; failed reads do not refresh it or invent a new timer data-change timestamp. Existing fallback freshness and authentication rules are unchanged.
+- Passed 147 ordinary workstation regressions in Debug and 147 in Release (98 portable and 49 SDK/lifecycle cases per configuration). Five Package-category cases were verified separately against the merged Release assembly under both net10.0 and net472, all passing. The final test-only timeout helper adjustment was also rerun in both configurations; those repeated executions are not additional distinct test cases.
+- Passed all 147 selected native net472/Mono processor regressions with zero failures or skips. The temporary Utility host used fake transports and synthetic credentials; it was removed and its package/cache cleaned up. The baseline driver configuration was verified preserved and the processor reservation released.
+- The restored timeout helper uses a non-generic Task so merged NUnit discovery does not mistake its compiler-generated generic state machine for a test fixture. No product asynchronous control flow was changed for this harness issue.
+- Lab setup discovery and commissioning sent no watering commands and required no reboot. These results do not claim completion of all-zone physical watering acceptance, outage testing or the initial Crestron submission. Earlier live and endurance evidence retains its original version, date and scope.
+
 ## Dependency and synchronization audit - 2026-11-10
 
 - Addressed the source audit findings and updated the public library/client references listed in the Unreleased changelog.

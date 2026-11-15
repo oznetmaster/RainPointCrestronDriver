@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.5](https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.5) - 2026-11-15
+
+- Keep 30-second cloud status reconciliation active alongside MQTT push, preventing quiet sessions and observer renewal from losing recent successful-contact evidence.
+- Preserve the existing 90-second fallback freshness limit: failed reads never refresh contact, and expired authentication still disables control.
+- Add regression coverage for quiet timer reports, successful periodic reads, failed reads and reconnect/authentication availability. Watering commands and saved configuration formats are unchanged.
+
 ## [1.1.4](https://github.com/oznetmaster/RainPointCrestronDriver/releases/tag/v1.1.4) - 2026-11-10
 
 - Use RainPointClient 1.2.2.

@@ -29,6 +29,15 @@
       "nugetUrl": "https://www.nuget.org/packages/CrestronHomeDriver.RainPoint.Irrigation/1.1.4",
       "nugetPayloadSha256": "5674266c96c135a6ffe7882949c0d99d6c72c7fb47a2283d4ffe138ff545e84b",
       "publishedUtc": "2026-11-10T13:20:40.6121108+00:00"
+    },
+    {
+      "id": "public-1.1.5",
+      "channel": "public",
+      "publicVersion": "1.1.5",
+      "driverVersion": "1.1.005.0000",
+      "status": "reserved",
+      "purpose": "Recover quiet-session status reconciliation and its regression coverage before the initial Crestron submission",
+      "recordedUtc": "2026-11-15T05:48:07.7238382+00:00"
     }
   ],
   "nugetDocumentationPatches": []
