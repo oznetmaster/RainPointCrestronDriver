@@ -20,21 +20,51 @@ jobs:
           path: CrestronHomeNUnit
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.401
+          dotnet-version: |
+            8.0.x
+            10.0.401
       - uses: NuGet/setup-nuget@v2
       - name: Install packaging tools
         shell: pwsh
-        run: ./CrestronHomeNUnit/tools/InstallCiTools.ps1
+        run: |
+          dotnet tool install --global dotnet-ilrepack --version 2.0.45
+          if ($LASTEXITCODE) { throw 'Merge tool installation failed.' }
+          dotnet restore driver/RainPointCrestronDriver.Lifecycle.Tests/RainPointCrestronDriver.Lifecycle.Tests.csproj
+          if ($LASTEXITCODE) { throw 'SDK 29 packaging dependency restore failed.' }
+          $manifest = Join-Path $HOME '.nuget/packages/crestron.devicedrivers.manifestutil/29.0.10/tools/net8.0/any/ManifestUtil.exe'
+          if (!(Test-Path -LiteralPath $manifest)) { throw 'Pinned SDK 29 ManifestUtil is missing.' }
+          "MANIFEST_UTIL_EXE=$manifest" >> $env:GITHUB_ENV
       - name: Build and execute packaged core tests twice
         shell: pwsh
         run: |
-          dotnet build driver/RainPointCrestronDriver.ProcessorTests/RainPointCrestronDriver.ProcessorTests.csproj -c Release -p:BuildProcessorTestPackages=true -p:ReleaseVersion=1.0.0 -p:DeployAfterBuild=false "-p:ManifestUtilExe=$env:MANIFEST_UTIL_EXE"
+          dotnet build driver/RainPointCrestronDriver.ProcessorTests/RainPointCrestronDriver.ProcessorTests.csproj -c Release -p:BuildProcessorTestPackages=true -p:ReleaseVersion=1.0.1 -p:DeployAfterBuild=false "-p:ManifestUtilExe=$env:MANIFEST_UTIL_EXE"
           if ($LASTEXITCODE) { throw 'Package build failed.' }
           dotnet build CrestronHomeNUnit/ProcessorTestPackage.Validation -c Release
           if ($LASTEXITCODE) { throw 'Validator build failed.' }
           [IO.Compression.ZipFile]::ExtractToDirectory('driver/RainPointCrestronDriver.ProcessorTests/bin/Release/net472/RainPointCrestronDriver.ProcessorTests.pkg','package')
-          ./CrestronHomeNUnit/ProcessorTestPackage.Validation/bin/Release/net472/ProcessorTestPackage.Validation.exe package/RainPointCrestronDriver.ProcessorTests.dll results 0 --run-twice
+          foreach ($asset in @('uidefinitions/UiDefinition.xml','translations/en-US.json')) {
+            if (!(Test-Path -LiteralPath (Join-Path 'package' $asset))) { throw "Test-host UI asset missing: $asset" }
+          }
+          [xml]$project = Get-Content driver/RainPointCrestronDriver.ProcessorTests/RainPointCrestronDriver.ProcessorTests.csproj -Raw
+          $expected = $project.SelectSingleNode('/Project/PropertyGroup/ProcessorExpectedTestCount').InnerText
+          ./CrestronHomeNUnit/ProcessorTestPackage.Validation/bin/Release/net472/ProcessorTestPackage.Validation.exe package/RainPointCrestronDriver.ProcessorTests.dll results $expected --run-twice
           if ($LASTEXITCODE) { throw 'Packaged core tests failed.' }
+          $reports = @(Get-ChildItem results -Recurse -Filter TestResult.xml)
+          if ($reports.Count -ne 4) { throw 'Expected two runs of both packaged suites.' }
+          foreach ($report in $reports) {
+            [xml]$result = Get-Content $report.FullName -Raw
+            $run = $result.'test-run'
+            if ([int]$run.failed -ne 0) { throw 'Packaged test failures remain.' }
+            if ($report.Directory.Name -eq 'unit') {
+              if ([int]$run.total -ne 98 -or [int]$run.passed -ne 98 -or [int]$run.skipped -ne 0) { throw 'Portable packaged suite did not pass completely.' }
+            } elseif ($report.Directory.Name -eq 'lifecycle') {
+              if ([int]$run.total -ne 49 -or [int]$run.passed -ne 0 -or [int]$run.skipped -ne 49) { throw 'Unexpected Windows net472 lifecycle result; these cases require Mono.' }
+              foreach ($test in $result.SelectNodes('//test-case[@result="Skipped"]')) {
+                if ($test.reason.message.InnerText -cne 'SetUp : Run native SDK tests in the desktop harness or on the processor.') { throw 'Unexpected skipped test.' }
+              }
+              Write-Output '49 lifecycle cases discovered; execution requires the separate net10.0 desktop or native Mono pass. They are not counted as Windows net472 passes.'
+            } else { throw 'Unexpected packaged suite.' }
+          }
       - uses: actions/upload-artifact@v4
         if: always()
         with:

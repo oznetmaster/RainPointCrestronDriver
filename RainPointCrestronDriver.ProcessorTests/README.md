@@ -1,8 +1,8 @@
 # RainPoint driver processor tests
 
-## Pending source update
+## Current test-package sources
 
-The next test-package build includes the portable tests and the SDK entity lifecycle/programming tests on net472/Mono. The latter also continue to run in the net10.0 workstation harness. Packaged UI and schema fixtures are loaded beside the test assembly; transferred private inputs use a separate directory. Installed automation and live watering tests remain separate, explicitly selected suites. The released 1.0.0 artifacts described below are unchanged.
+The current 1.0.1 test-package sources use Crestron SDK 29.0.10, declare SDK 29 in the manifest, and include 98 portable tests plus 49 SDK entity lifecycle/programming tests on net472/Mono. Packaging uses ManifestUtil 29.0.10 and includes the shared host UI assets. The latter also continue to run in the net10.0 workstation harness. Packaged UI and schema fixtures are loaded beside the test assembly; transferred private inputs use a separate directory. Installed automation and live watering tests remain separate, explicitly selected suites. The released 1.0.0 artifacts described below are unchanged.
 
 ## NUnit 5 test package
 
